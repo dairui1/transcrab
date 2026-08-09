@@ -7,8 +7,6 @@ export const DEFAULT_TRANSLATE_CONFIG = Object.freeze({
   mode: 'auto',
   audience: 'general',
   style: 'storytelling',
-  chunkThreshold: 4000,
-  chunkMaxWords: 5000,
   glossary: [],
 });
 
@@ -24,31 +22,20 @@ export function normalizeMode(mode, fallback = DEFAULT_TRANSLATE_CONFIG.mode) {
 }
 
 export function mergeTranslateConfig(base, patch) {
-  const merged = {
+  const combined = {
     ...DEFAULT_TRANSLATE_CONFIG,
     ...(base || {}),
     ...(patch || {}),
   };
 
-  merged.mode = normalizeMode(merged.mode);
-  merged.audience = String(merged.audience || DEFAULT_TRANSLATE_CONFIG.audience).trim() || DEFAULT_TRANSLATE_CONFIG.audience;
-  merged.style = String(merged.style || DEFAULT_TRANSLATE_CONFIG.style).trim() || DEFAULT_TRANSLATE_CONFIG.style;
-
-  const threshold = Number(merged.chunkThreshold);
-  merged.chunkThreshold = Number.isFinite(threshold) && threshold > 0
-    ? Math.floor(threshold)
-    : DEFAULT_TRANSLATE_CONFIG.chunkThreshold;
-
-  const maxWords = Number(merged.chunkMaxWords);
-  merged.chunkMaxWords = Number.isFinite(maxWords) && maxWords > 0
-    ? Math.floor(maxWords)
-    : DEFAULT_TRANSLATE_CONFIG.chunkMaxWords;
-
-  merged.glossary = Array.isArray(merged.glossary)
-    ? merged.glossary.filter(Boolean).map((x) => String(x).trim()).filter(Boolean)
-    : [];
-
-  return merged;
+  return {
+    mode: normalizeMode(combined.mode),
+    audience: String(combined.audience || DEFAULT_TRANSLATE_CONFIG.audience).trim() || DEFAULT_TRANSLATE_CONFIG.audience,
+    style: String(combined.style || DEFAULT_TRANSLATE_CONFIG.style).trim() || DEFAULT_TRANSLATE_CONFIG.style,
+    glossary: Array.isArray(combined.glossary)
+      ? combined.glossary.filter(Boolean).map((x) => String(x).trim()).filter(Boolean)
+      : [],
+  };
 }
 
 async function maybeReadJson(filePath) {

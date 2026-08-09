@@ -31,9 +31,9 @@ test('mergeTranslateConfig applies defaults and sanitizes values', () => {
   assert.equal(cfg.mode, DEFAULT_TRANSLATE_CONFIG.mode);
   assert.equal(cfg.audience, 'tech');
   assert.equal(cfg.style, 'formal');
-  assert.equal(cfg.chunkThreshold, 1200);
-  assert.equal(cfg.chunkMaxWords, 9000);
   assert.deepEqual(cfg.glossary, ['API']);
+  assert.equal('chunkThreshold' in cfg, false);
+  assert.equal('chunkMaxWords' in cfg, false);
 });
 
 test('loadTranslateConfig merges file + cli overrides', async () => {
@@ -46,7 +46,7 @@ test('loadTranslateConfig merges file + cli overrides', async () => {
         mode: 'quick',
         audience: 'general',
         style: 'literal',
-        chunkThreshold: 3333,
+        glossary: ['API => API'],
       },
       null,
       2
@@ -63,5 +63,5 @@ test('loadTranslateConfig merges file + cli overrides', async () => {
   assert.equal(config.mode, 'refined');
   assert.equal(config.style, 'storytelling');
   assert.equal(config.audience, 'general');
-  assert.equal(config.chunkThreshold, 3333);
+  assert.deepEqual(config.glossary, ['API => API']);
 });

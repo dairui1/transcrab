@@ -105,8 +105,6 @@ export function inferAutoProfile(markdown, baseProfile = {}) {
       mode: 'refined',
       style: preset.style,
       audience: preset.audience,
-      chunkThreshold: baseProfile.chunkThreshold,
-      chunkMaxWords: baseProfile.chunkMaxWords,
       glossary: baseProfile.glossary || [],
     },
     metrics,

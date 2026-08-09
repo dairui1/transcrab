@@ -1,9 +1,17 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import createDOMPurify from 'dompurify';
 import matter from 'gray-matter';
+import { JSDOM } from 'jsdom';
 import { marked } from 'marked';
+import { normalizeTargetLanguage } from '../../scripts/lib/identifiers.mjs';
 
 const CONTENT_ROOT = path.resolve(process.cwd(), 'content', 'articles');
+const DOMPurify = createDOMPurify(new JSDOM('').window);
+const SANITIZE_OPTIONS = Object.freeze({
+  USE_PROFILES: { html: true, svg: true, svgFilters: true },
+  FORBID_TAGS: ['script', 'foreignObject', 'foreignobject'],
+});
 
 function ts(x) {
   if (!x) return null;
@@ -29,6 +37,41 @@ function dateDisplay(dateStr) {
   return s.length >= 10 ? s.slice(0, 10) : s;
 }
 
+async function fileExists(filePath) {
+  try {
+    await fs.access(filePath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function resolveArticleMarkdownPath(contentRoot, slug) {
+  const articleSlug = String(slug || '');
+  if (!articleSlug || articleSlug === '.' || articleSlug === '..' || /[\\/\0]/.test(articleSlug)) {
+    throw new Error(`Invalid article directory: ${slug}`);
+  }
+  const articleDir = path.join(contentRoot, articleSlug);
+  let targetLang = 'zh';
+
+  try {
+    const meta = JSON.parse(await fs.readFile(path.join(articleDir, 'meta.json'), 'utf8'));
+    targetLang = normalizeTargetLanguage(meta.targetLang || 'zh');
+  } catch {
+    targetLang = 'zh';
+  }
+
+  const targetPath = path.join(articleDir, `${targetLang}.md`);
+  if (await fileExists(targetPath)) return { filePath: targetPath, lang: targetLang };
+
+  const fallbackPath = path.join(articleDir, 'zh.md');
+  if (targetLang !== 'zh' && await fileExists(fallbackPath)) {
+    return { filePath: fallbackPath, lang: 'zh' };
+  }
+
+  return { filePath: targetPath, lang: targetLang };
+}
+
 export async function listArticles() {
   let dirs = [];
   try {
@@ -42,11 +85,9 @@ export async function listArticles() {
     if (!d.isDirectory()) continue;
     const slug = d.name;
 
-    const zhPath = path.join(CONTENT_ROOT, slug, 'zh.md');
-    const metaPath = path.join(CONTENT_ROOT, slug, 'meta.json');
-
     try {
-      const raw = await fs.readFile(zhPath, 'utf-8');
+      const { filePath: translationPath, lang } = await resolveArticleMarkdownPath(CONTENT_ROOT, slug);
+      const raw = await fs.readFile(translationPath, 'utf-8');
       const fm = matter(raw);
 
       // NOTE: We use frontmatter `date` as the single source of truth.
@@ -62,6 +103,7 @@ export async function listArticles() {
         date,
         dateDisplay: dateDisplay(date),
         sourceUrl: fm.data.sourceUrl ?? null,
+        lang,
       });
     } catch {
       // ignore
@@ -81,11 +123,11 @@ export async function listArticles() {
 }
 
 export async function getArticle(slug) {
-  const zhPath = path.join(CONTENT_ROOT, slug, 'zh.md');
   try {
-    const raw = await fs.readFile(zhPath, 'utf-8');
+    const { filePath: translationPath, lang } = await resolveArticleMarkdownPath(CONTENT_ROOT, slug);
+    const raw = await fs.readFile(translationPath, 'utf-8');
     const fm = matter(raw);
-    const html = marked.parse(fixStrongAdjacency(fm.content));
+    const html = renderArticleMarkdown(fm.content);
     const date = fm.data.date ?? null;
     return {
       slug,
@@ -93,11 +135,17 @@ export async function getArticle(slug) {
       date,
       dateDisplay: dateDisplay(date),
       sourceUrl: fm.data.sourceUrl ?? null,
+      lang,
       html,
     };
   } catch {
     return null;
   }
+}
+
+export function renderArticleMarkdown(markdown) {
+  const rendered = marked.parse(fixStrongAdjacency(String(markdown || '')));
+  return DOMPurify.sanitize(rendered, SANITIZE_OPTIONS);
 }
 
 // CommonMark-style emphasis rules are strict about delimiter adjacency.

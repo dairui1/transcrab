@@ -13,5 +13,6 @@ test('deriveArtifactPaths creates stable output filenames', () => {
   const p = deriveArtifactPaths('/tmp/x');
   assert.equal(p.analysis, '/tmp/x/01-analysis.md');
   assert.equal(p.assembledPrompt, '/tmp/x/02-prompt.md');
-  assert.equal(p.final, '/tmp/x/translation.md');
+  assert.equal(p.final, '/tmp/x/zh.md');
+  assert.equal(deriveArtifactPaths('/tmp/x', 'en-US').final, '/tmp/x/en-US.md');
 });

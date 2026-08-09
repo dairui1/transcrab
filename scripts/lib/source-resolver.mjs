@@ -4,8 +4,6 @@ import { spawnSync } from 'node:child_process';
 import { fetch } from 'undici';
 import { htmlToMarkdown } from '../transcrab-core.mjs';
 
-const DEFAULT_JINA_RUNNER = '/Users/onevcat/.openclaw/workspace/skills-shared/jina-cli/scripts/run-jina.sh';
-
 export async function resolveSourceToMarkdown(url) {
   // Prefer fxtwitter for x.com/twitter status links, because direct fetch can be blocked
   // and article blocks include MEDIA entities that we can map back to inline images.
@@ -248,32 +246,75 @@ function flattenLdJson(input) {
   return out;
 }
 
-function commandExists(bin) {
-  const paths = (process.env.PATH || '').split(path.delimiter);
+function resolvePathCommand(
+  bin,
+  pathValue = process.env.PATH || '',
+  { platform = process.platform, pathExt = process.env.PATHEXT || '.COM;.EXE;.BAT;.CMD' } = {}
+) {
+  const paths = String(pathValue).split(platform === 'win32' ? ';' : path.delimiter);
+  const extensions = platform === 'win32' && !path.extname(bin)
+    ? String(pathExt).split(';').filter(Boolean)
+    : [''];
+
   for (const p of paths) {
     if (!p) continue;
-    const full = path.join(p, bin);
-    if (fsSync.existsSync(full)) return true;
+    for (const extension of extensions) {
+      const full = path.join(p, `${bin}${extension}`);
+      if (fsSync.existsSync(full)) return platform === 'win32' ? full : bin;
+    }
   }
-  return false;
+  return null;
+}
+
+function spawnPortable(command, args, options) {
+  if (process.platform !== 'win32' || !/\.(?:cmd|bat)$/i.test(command)) {
+    return spawnSync(command, args, options);
+  }
+
+  const prefix = `TRANSCRAB_CHILD_${process.pid}_`;
+  const env = { ...process.env, ...(options?.env || {}), [`${prefix}COMMAND`]: command };
+  const psArgs = args.map((value, index) => {
+    env[`${prefix}ARG_${index}`] = String(value);
+    return `$env:${prefix}ARG_${index}`;
+  });
+  const script = `& $env:${prefix}COMMAND @(${psArgs.join(',')}); exit $LASTEXITCODE`;
+  return spawnSync('powershell.exe', [
+    '-NoLogo',
+    '-NoProfile',
+    '-NonInteractive',
+    '-Command',
+    script,
+  ], { ...options, env });
 }
 
 async function extractViaAgentBrowser(url) {
-  if (!commandExists('agent-browser')) return null;
+  const command = resolvePathCommand('agent-browser');
+  if (!command) return null;
 
-  const q = shellQuote(url);
-  const cmd = [
-    `agent-browser open ${q} >/dev/null 2>&1`,
-    'agent-browser wait --load networkidle >/dev/null 2>&1',
-    "agent-browser eval --stdin <<'EVAL'",
+  const open = spawnPortable(command, ['open', url], {
+    encoding: 'utf8',
+    timeout: 120000,
+  });
+  if (open.status !== 0) return null;
+
+  const wait = spawnPortable(command, ['wait', '--load', 'networkidle'], {
+    encoding: 'utf8',
+    timeout: 120000,
+  });
+  if (wait.status !== 0) return null;
+
+  const script = [
     '(() => {',
     "  const root = document.querySelector('article, main') || document.body;",
     '  return root ? root.outerHTML : document.documentElement.outerHTML;',
     '})();',
-    'EVAL',
   ].join('\n');
 
-  const run = spawnSync('zsh', ['-lc', cmd], { encoding: 'utf8', timeout: 120000 });
+  const run = spawnPortable(command, ['eval', '--stdin'], {
+    encoding: 'utf8',
+    input: script,
+    timeout: 120000,
+  });
   if (run.status !== 0) return null;
 
   const rendered = decodeAgentBrowserOutput(run.stdout || '');
@@ -288,7 +329,7 @@ async function extractViaJina(url) {
   const runner = resolveJinaRunner();
   if (!runner) return null;
 
-  const run = spawnSync(runner, ['read', url, '--links', '--images'], {
+  const run = spawnPortable(runner, ['read', url, '--links', '--images'], {
     encoding: 'utf8',
     timeout: 120000,
   });
@@ -302,9 +343,26 @@ async function extractViaJina(url) {
   return parsed;
 }
 
-function resolveJinaRunner() {
-  if (fsSync.existsSync(DEFAULT_JINA_RUNNER)) return DEFAULT_JINA_RUNNER;
-  if (commandExists('jina')) return 'jina';
+export function resolveJinaRunner({ env = process.env, cwd = process.cwd(), platform = process.platform } = {}) {
+  const configured = String(env.TRANSCRAB_JINA_RUNNER || '').trim();
+  if (configured) {
+    const configuredPath = path.isAbsolute(configured)
+      ? configured
+      : path.resolve(cwd, configured);
+
+    if (fsSync.existsSync(configuredPath)) return configuredPath;
+    const command = resolvePathCommand(configured, env.PATH || '', {
+      platform,
+      pathExt: env.PATHEXT,
+    });
+    if (command) return command;
+  }
+
+  const jina = resolvePathCommand('jina', env.PATH || '', {
+    platform,
+    pathExt: env.PATHEXT,
+  });
+  if (jina) return jina;
   return null;
 }
 
@@ -342,10 +400,6 @@ function decodeAgentBrowserOutput(raw) {
     // If it's not JSON (or includes extra noise), return as-is.
     return chunk;
   }
-}
-
-function shellQuote(s) {
-  return `'${String(s).replace(/'/g, `'"'"'`)}'`;
 }
 
 function isXStatusUrl(rawUrl) {

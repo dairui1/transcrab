@@ -2,7 +2,5 @@
   "mode": "auto",
   "audience": "general",
   "style": "storytelling",
-  "chunkThreshold": 4000,
-  "chunkMaxWords": 5000,
   "glossary": []
 }

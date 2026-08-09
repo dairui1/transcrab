@@ -37,6 +37,9 @@ test('apply-translation.mjs: extracts H1 title and writes frontmatter', () => {
 
   const out = JSON.parse(r.stdout.trim());
   assert.equal(out.ok, true);
+  assert.equal(out.schema, 'transcrab.cli-result');
+  assert.equal(out.schemaVersion, 1);
+  assert.equal(out.status, 'complete');
   assert.equal(out.stage, 'final');
 
   const zh = readFileSync(path.join(dir, 'zh.md'), 'utf8');
@@ -48,6 +51,40 @@ test('apply-translation.mjs: extracts H1 title and writes frontmatter', () => {
   assert.match(parsed.content, /这是正文第一段/);
 });
 
+test('apply-translation.mjs: does not run Chinese punctuation fixes for other target languages', () => {
+  const { tmp, contentRoot, slug, dir } = setupArticleFixture();
+  const inFile = path.join(tmp, 'translated.en.md');
+  writeFileSync(inFile, '# English title\n\nThe quoted source says 中文? Keep it exact.\n', 'utf8');
+
+  const script = path.resolve('scripts/apply-translation.mjs');
+  const r = spawnSync(process.execPath, [script, slug, '--lang', 'en', '--in', inFile], {
+    env: { ...process.env, TRANSCRAB_CONTENT_ROOT: contentRoot },
+    encoding: 'utf8',
+  });
+  assert.equal(r.status, 0, r.stderr || r.stdout);
+
+  const out = JSON.parse(r.stdout.trim());
+  assert.equal(out.autoFixed, false);
+  assert.match(readFileSync(path.join(dir, 'en.md'), 'utf8'), /中文\?/);
+});
+
+test('apply-translation.mjs: rejects a target language that disagrees with prepared metadata', () => {
+  const { tmp, contentRoot, slug, dir } = setupArticleFixture();
+  writeFileSync(path.join(dir, 'meta.json'), JSON.stringify({ targetLang: 'en' }), 'utf8');
+  const inFile = path.join(tmp, 'translated.fr.md');
+  writeFileSync(inFile, '# Titre\n\nCorps.', 'utf8');
+
+  const script = path.resolve('scripts/apply-translation.mjs');
+  const r = spawnSync(process.execPath, [script, slug, '--lang', 'fr', '--in', inFile], {
+    env: { ...process.env, TRANSCRAB_CONTENT_ROOT: contentRoot },
+    encoding: 'utf8',
+  });
+
+  assert.notEqual(r.status, 0);
+  assert.match(r.stderr + r.stdout, /task expects en, received fr/);
+  assert.equal(fs.existsSync(path.join(dir, 'fr.md')), false);
+});
+
 test('apply-translation.mjs: draft stage writes draft+critique for refined flow', () => {
   const { tmp, contentRoot, slug, dir } = setupArticleFixture();
 
@@ -55,6 +92,11 @@ test('apply-translation.mjs: draft stage writes draft+critique for refined flow'
   writeFileSync(
     path.join(dir, 'translation.profile.json'),
     JSON.stringify({ executionMode: 'refined' }, null, 2),
+    'utf8'
+  );
+  writeFileSync(
+    path.join(dir, 'agent-task.json'),
+    JSON.stringify({ schema: 'transcrab.agent-task', schemaVersion: 1, status: 'awaiting_translation' }),
     'utf8'
   );
 
@@ -70,6 +112,8 @@ test('apply-translation.mjs: draft stage writes draft+critique for refined flow'
   assert.equal(r.status, 0, r.stderr || r.stdout);
 
   const out = JSON.parse(r.stdout.trim());
+  assert.equal(out.schemaVersion, 1);
+  assert.equal(out.status, 'draft_applied');
   assert.equal(out.stage, 'draft');
 
   const draftPath = path.join(dir, '03-draft.md');
@@ -80,6 +124,10 @@ test('apply-translation.mjs: draft stage writes draft+critique for refined flow'
 
   const critique = readFileSync(critiquePath, 'utf8');
   assert.match(critique, /code-fence-balanced/);
+  assert.doesNotMatch(critique, /TODO/);
+  const task = JSON.parse(readFileSync(path.join(dir, 'agent-task.json'), 'utf8'));
+  assert.equal(task.status, 'draft_applied');
+  assert.deepEqual(task.completedStages, ['draft']);
 });
 
 test('apply-translation.mjs: draft stage in normal flow does not create critique file', () => {
@@ -120,6 +168,50 @@ test('apply-translation.mjs: rejects invalid stage', () => {
   });
   assert.notEqual(r.status, 0);
   assert.match(r.stderr + r.stdout, /Invalid --stage/);
+  const errorResult = JSON.parse(r.stderr.trim());
+  assert.equal(errorResult.schema, 'transcrab.cli-result');
+  assert.equal(errorResult.status, 'error');
+  assert.equal(errorResult.ok, false);
+});
+
+test('apply-translation.mjs: rejects translations without the required H1 title', () => {
+  const { tmp, contentRoot, slug } = setupArticleFixture();
+  const inFile = path.join(tmp, 'missing-title.md');
+  writeFileSync(inFile, 'Translated body without a title.', 'utf8');
+
+  const script = path.resolve('scripts/apply-translation.mjs');
+  const r = spawnSync(process.execPath, [script, slug, '--lang', 'zh', '--in', inFile], {
+    env: { ...process.env, TRANSCRAB_CONTENT_ROOT: contentRoot },
+    encoding: 'utf8',
+  });
+
+  assert.notEqual(r.status, 0);
+  assert.match(r.stderr + r.stdout, /must start with an H1 title/);
+});
+
+test('apply-translation.mjs: refined final stage requires an applied draft', () => {
+  const { tmp, contentRoot, slug, dir } = setupArticleFixture();
+  writeFileSync(
+    path.join(dir, 'translation.profile.json'),
+    JSON.stringify({ executionMode: 'refined' }, null, 2),
+    'utf8'
+  );
+  writeFileSync(
+    path.join(dir, '03-draft.md'),
+    '# Initial Translation Draft\n\n> Put the first complete translation here (H1 + blank line + body).\n',
+    'utf8'
+  );
+  const inFile = path.join(tmp, 'premature-final.md');
+  writeFileSync(inFile, '# Final title\n\nFinal body.', 'utf8');
+
+  const script = path.resolve('scripts/apply-translation.mjs');
+  const r = spawnSync(process.execPath, [script, slug, '--lang', 'zh', '--in', inFile, '--stage', 'final'], {
+    env: { ...process.env, TRANSCRAB_CONTENT_ROOT: contentRoot },
+    encoding: 'utf8',
+  });
+
+  assert.notEqual(r.status, 0);
+  assert.match(r.stderr + r.stdout, /requires an applied draft/);
 });
 
 test('apply-translation.mjs: final stage applies punctuation auto-fix and writes lint report', () => {
@@ -134,10 +226,12 @@ test('apply-translation.mjs: final stage applies punctuation auto-fix and writes
 
   const translated = `# 最终标题\n\n问题是? 这段中文?`;
   const inFile = path.join(tmp, 'final-lint.md');
+  const reviewFile = path.join(tmp, 'review-lint.md');
   writeFileSync(inFile, translated, 'utf8');
+  writeFileSync(reviewFile, '# Revision Notes\n\n- Checked terminology and punctuation.\n', 'utf8');
 
   const script = path.resolve('scripts/apply-translation.mjs');
-  const r = spawnSync(process.execPath, [script, slug, '--lang', 'zh', '--in', inFile, '--stage', 'final'], {
+  const r = spawnSync(process.execPath, [script, slug, '--lang', 'zh', '--in', inFile, '--stage', 'final', '--review-notes', reviewFile], {
     env: { ...process.env, TRANSCRAB_CONTENT_ROOT: contentRoot },
     encoding: 'utf8',
   });
@@ -161,13 +255,20 @@ test('apply-translation.mjs: final stage writes revision notes for refined flow'
     'utf8'
   );
   writeFileSync(path.join(dir, '03-draft.md'), '# Draft\n\nold', 'utf8');
+  writeFileSync(
+    path.join(dir, 'agent-task.json'),
+    JSON.stringify({ schema: 'transcrab.agent-task', schemaVersion: 1, status: 'draft_applied', completedStages: ['draft'] }),
+    'utf8'
+  );
 
   const translated = `# 最终标题\n\n最终正文。`;
   const inFile = path.join(tmp, 'final.md');
+  const reviewFile = path.join(tmp, 'review.md');
   writeFileSync(inFile, translated, 'utf8');
+  writeFileSync(reviewFile, '# Revision Notes\n\n- Verified accuracy, terms, structure, and readability.\n', 'utf8');
 
   const script = path.resolve('scripts/apply-translation.mjs');
-  const r = spawnSync(process.execPath, [script, slug, '--lang', 'zh', '--in', inFile, '--stage', 'final'], {
+  const r = spawnSync(process.execPath, [script, slug, '--lang', 'zh', '--in', inFile, '--stage', 'final', '--review-notes', reviewFile], {
     env: { ...process.env, TRANSCRAB_CONTENT_ROOT: contentRoot },
     encoding: 'utf8',
   });
@@ -175,6 +276,58 @@ test('apply-translation.mjs: final stage writes revision notes for refined flow'
 
   assert.ok(fs.existsSync(path.join(dir, 'zh.md')));
   assert.ok(fs.existsSync(path.join(dir, '05-revision.md')));
+  assert.doesNotMatch(readFileSync(path.join(dir, '05-revision.md'), 'utf8'), /TODO/);
+  const task = JSON.parse(readFileSync(path.join(dir, 'agent-task.json'), 'utf8'));
+  assert.equal(task.status, 'complete');
+  assert.deepEqual(task.completedStages, ['draft', 'final']);
+});
+
+test('apply-translation.mjs: refined final stage requires completed review notes', () => {
+  const { tmp, contentRoot, slug, dir } = setupArticleFixture();
+  writeFileSync(
+    path.join(dir, 'translation.profile.json'),
+    JSON.stringify({ executionMode: 'refined' }, null, 2),
+    'utf8'
+  );
+  writeFileSync(path.join(dir, '03-draft.md'), '# Draft\n\nDraft body.', 'utf8');
+  const inFile = path.join(tmp, 'final-without-review.md');
+  writeFileSync(inFile, '# Final title\n\nFinal body.', 'utf8');
+
+  const script = path.resolve('scripts/apply-translation.mjs');
+  const r = spawnSync(process.execPath, [script, slug, '--lang', 'zh', '--in', inFile, '--stage', 'final'], {
+    env: { ...process.env, TRANSCRAB_CONTENT_ROOT: contentRoot },
+    encoding: 'utf8',
+  });
+
+  assert.notEqual(r.status, 0);
+  assert.match(r.stderr + r.stdout, /requires --review-notes/);
+});
+
+test('apply-translation.mjs: a complete durable task cannot regress to draft', () => {
+  const { tmp, contentRoot, slug, dir } = setupArticleFixture();
+  const taskPath = path.join(dir, 'agent-task.json');
+  const completedTask = {
+    schema: 'transcrab.agent-task',
+    schemaVersion: 1,
+    status: 'complete',
+    completedStages: ['draft', 'final'],
+    article: { slug, targetLanguage: 'zh' },
+  };
+  writeFileSync(taskPath, JSON.stringify(completedTask, null, 2), 'utf8');
+  writeFileSync(path.join(dir, 'meta.json'), JSON.stringify({ targetLang: 'zh' }), 'utf8');
+  const inFile = path.join(tmp, 'late-draft.md');
+  writeFileSync(inFile, '# Late draft\n\nShould not apply.', 'utf8');
+
+  const script = path.resolve('scripts/apply-translation.mjs');
+  const r = spawnSync(process.execPath, [script, slug, '--lang', 'zh', '--in', inFile, '--stage', 'draft'], {
+    env: { ...process.env, TRANSCRAB_CONTENT_ROOT: contentRoot },
+    encoding: 'utf8',
+  });
+
+  assert.notEqual(r.status, 0);
+  assert.match(r.stderr + r.stdout, /Cannot apply a draft.*complete/);
+  assert.deepEqual(JSON.parse(readFileSync(taskPath, 'utf8')), completedTask);
+  assert.equal(fs.existsSync(path.join(dir, '03-draft.md')), false);
 });
 
 test('apply-translation.mjs: restores inline SVG placeholders in output', () => {
@@ -185,7 +338,7 @@ test('apply-translation.mjs: restores inline SVG placeholders in output', () => 
     JSON.stringify([
       {
         id: '@@FIGURE_SVG_001@@',
-        html: '<figure><p class="figure-title">Demo</p><svg><text>demo</text></svg></figure>',
+        html: '<figure><p class="figure-title">Demo</p><svg><text>中文?</text></svg></figure>',
       },
     ], null, 2),
     'utf8'
@@ -206,6 +359,7 @@ test('apply-translation.mjs: restores inline SVG placeholders in output', () => 
   assert.doesNotMatch(zh, /@@FIGURE_SVG_001@@/);
   assert.match(zh, /<figure>/);
   assert.match(zh, /<svg>/);
+  assert.match(zh, /<text>中文\?<\/text>/);
 });
 
 test('apply-translation.mjs: fails when inline SVG placeholders are missing', () => {
@@ -229,4 +383,54 @@ test('apply-translation.mjs: fails when inline SVG placeholders are missing', ()
 
   assert.notEqual(r.status, 0);
   assert.match(r.stderr + r.stdout, /Missing inline SVG placeholders/);
+});
+
+test('apply-translation.mjs: does not silently ignore corrupt pipeline state', () => {
+  const { tmp, contentRoot, slug, dir } = setupArticleFixture();
+  writeFileSync(path.join(dir, 'translation.profile.json'), '{broken', 'utf8');
+  const inFile = path.join(tmp, 'valid-translation.md');
+  writeFileSync(inFile, '# Valid title\n\nValid body.', 'utf8');
+
+  const script = path.resolve('scripts/apply-translation.mjs');
+  const r = spawnSync(process.execPath, [script, slug, '--lang', 'zh', '--in', inFile], {
+    env: { ...process.env, TRANSCRAB_CONTENT_ROOT: contentRoot },
+    encoding: 'utf8',
+  });
+
+  assert.notEqual(r.status, 0);
+  assert.match(r.stderr + r.stdout, /Invalid translation profile JSON/);
+});
+
+test('apply-translation.mjs: rejects a corrupt durable agent task before publishing', () => {
+  const { tmp, contentRoot, slug, dir } = setupArticleFixture();
+  writeFileSync(path.join(dir, 'agent-task.json'), '{broken', 'utf8');
+  const inFile = path.join(tmp, 'valid-final.md');
+  writeFileSync(inFile, '# Valid title\n\nValid body.', 'utf8');
+
+  const script = path.resolve('scripts/apply-translation.mjs');
+  const r = spawnSync(process.execPath, [script, slug, '--lang', 'zh', '--in', inFile], {
+    env: { ...process.env, TRANSCRAB_CONTENT_ROOT: contentRoot },
+    encoding: 'utf8',
+  });
+
+  assert.notEqual(r.status, 0);
+  assert.match(r.stderr + r.stdout, /Invalid agent task JSON/);
+  assert.equal(fs.existsSync(path.join(dir, 'zh.md')), false);
+});
+
+test('apply-translation.mjs: rejects malformed inline SVG placeholder state', () => {
+  const { tmp, contentRoot, slug, dir } = setupArticleFixture();
+  writeFileSync(path.join(dir, 'inline-svg.placeholders.json'), JSON.stringify([{}]), 'utf8');
+  const inFile = path.join(tmp, 'valid-placeholder-final.md');
+  writeFileSync(inFile, '# Valid title\n\nValid body.', 'utf8');
+
+  const script = path.resolve('scripts/apply-translation.mjs');
+  const r = spawnSync(process.execPath, [script, slug, '--lang', 'zh', '--in', inFile], {
+    env: { ...process.env, TRANSCRAB_CONTENT_ROOT: contentRoot },
+    encoding: 'utf8',
+  });
+
+  assert.notEqual(r.status, 0);
+  assert.match(r.stderr + r.stdout, /invalid entries/);
+  assert.equal(fs.existsSync(path.join(dir, 'zh.md')), false);
 });

@@ -4,6 +4,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { loadTranslateConfig, normalizeMode } from './lib/translate-config.mjs';
 import { buildTranslatePrompt } from './lib/translate-prompt.mjs';
+import { normalizeTargetLanguage } from './lib/identifiers.mjs';
 
 export function getPipelineSteps(mode) {
   const normalized = normalizeMode(mode);
@@ -13,14 +14,15 @@ export function getPipelineSteps(mode) {
   return ['analyze', 'translate', 'review', 'revise'];
 }
 
-export function deriveArtifactPaths(outputDir) {
+export function deriveArtifactPaths(outputDir, lang = 'zh') {
+  const targetLang = normalizeTargetLanguage(lang);
   return {
     analysis: path.join(outputDir, '01-analysis.md'),
     assembledPrompt: path.join(outputDir, '02-prompt.md'),
     draft: path.join(outputDir, '03-draft.md'),
     critique: path.join(outputDir, '04-critique.md'),
     revision: path.join(outputDir, '05-revision.md'),
-    final: path.join(outputDir, 'translation.md'),
+    final: path.join(outputDir, `${targetLang}.md`),
   };
 }
 
@@ -42,12 +44,13 @@ export async function materializePipelineArtifacts({
   sourceUrl = '',
 } = {}) {
   const absOut = path.resolve(outputDir);
+  const targetLang = normalizeTargetLanguage(lang);
   await fs.mkdir(absOut, { recursive: true });
 
-  const artifacts = deriveArtifactPaths(absOut);
+  const artifacts = deriveArtifactPaths(absOut, targetLang);
   const executionMode = resolveExecutionMode(profile, autoProfile);
   const executionSteps = getPipelineSteps(executionMode);
-  const prompt = buildTranslatePrompt(markdown, lang, {
+  const prompt = buildTranslatePrompt(markdown, targetLang, {
     ...profile,
     steps: executionSteps,
     autoProfile,
@@ -66,11 +69,11 @@ export async function materializePipelineArtifacts({
       `- sourceUrl: ${sourceUrl || 'unknown'}`,
       `- requestedMode: ${normalizeMode(profile.mode)}`,
       `- executionMode: ${executionMode}`,
-      '- terminology: TODO',
-      '- audience-fit: TODO',
-      '- tone/style risks: TODO',
+      `- terminology: ${Array.isArray(profile.glossary) && profile.glossary.length ? profile.glossary.join('; ') : 'infer from source and keep consistent'}`,
+      `- audience-fit: ${profile.audience || 'general'}`,
+      `- tone/style: ${profile.style || 'storytelling'}`,
       '',
-      '> Fill this file during translation analysis; keep it concise and actionable.',
+      '> This profile guides the active agent; record substantive review in the final review notes.',
       '',
     ].join('\n');
 
@@ -95,17 +98,10 @@ export async function materializePipelineArtifacts({
     );
     await fs.appendFile(
       artifacts.critique,
-      '\n\n- factual accuracy: TODO\n- terminology drift: TODO\n- markdown integrity: TODO\n- readability issues: TODO\n- style alignment: TODO\n',
+      '\n\n- status: awaiting applied draft\n- scope: structural checks are generated during draft apply; semantic review is recorded separately\n',
       'utf8'
     );
     created.push(artifacts.critique);
-
-    await fs.writeFile(
-      artifacts.revision,
-      '# Revision Notes\n\n- changes applied: TODO\n- unresolved issues: TODO\n- final polish checklist: TODO\n',
-      'utf8'
-    );
-    created.push(artifacts.revision);
   }
 
   return {
@@ -130,6 +126,7 @@ function parseArgs(argv) {
     mode: argValue(args, '--mode'),
     audience: argValue(args, '--audience'),
     style: argValue(args, '--style'),
+    lang: argValue(args, '--lang', 'zh'),
     configPath: argValue(args, '--config'),
     dryRun: args.includes('--dry-run'),
   };
@@ -139,7 +136,7 @@ async function main() {
   const args = parseArgs(process.argv);
   if (!args.source || !args.outputDir) {
     console.log(
-      'Usage: node scripts/translate-orchestrator.mjs --source <source.md> --out <dir> [--mode auto|quick|normal|refined] [--audience <name>] [--style <name>] [--config <path>] [--dry-run]'
+      'Usage: node scripts/translate-orchestrator.mjs --source <source.md> --out <dir> [--lang zh] [--mode auto|quick|normal|refined] [--audience <name>] [--style <name>] [--config <path>] [--dry-run]'
     );
     process.exit(2);
   }
@@ -154,8 +151,9 @@ async function main() {
     },
   });
 
+  const lang = normalizeTargetLanguage(args.lang);
   const steps = getPipelineSteps(config.mode);
-  const artifacts = deriveArtifactPaths(path.resolve(args.outputDir));
+  const artifacts = deriveArtifactPaths(path.resolve(args.outputDir), lang);
 
   await fs.mkdir(path.resolve(args.outputDir), { recursive: true });
 
@@ -163,6 +161,7 @@ async function main() {
     ok: true,
     source: path.resolve(args.source),
     outputDir: path.resolve(args.outputDir),
+    lang,
     config,
     steps,
     artifacts,

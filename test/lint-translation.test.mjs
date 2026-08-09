@@ -16,3 +16,28 @@ test('autoFixTranslation normalizes common punctuation and phrase', () => {
   assert.match(fixed.text, /中文？/);
   assert.equal(fixed.changed, true);
 });
+
+test('lint and auto-fix leave code spans, fences, and link destinations unchanged', () => {
+  const md = [
+    '# T',
+    '',
+    '正文问题是? `const value = "中文?"` [链接](https://example.com/中文?x=1)',
+    '',
+    '```js',
+    'const value = "中文?";',
+    '```',
+    '',
+    '    const indented = "中文?";',
+    '',
+  ].join('\n');
+
+  const fixed = autoFixTranslation(md);
+  assert.match(fixed.text, /正文问题在于：/);
+  assert.match(fixed.text, /`const value = "中文\?"`/);
+  assert.match(fixed.text, /https:\/\/example\.com\/中文\?x=1/);
+  assert.match(fixed.text, /```js\nconst value = "中文\?";\n```/);
+  assert.match(fixed.text, /    const indented = "中文\?";/);
+
+  const report = lintTranslation(md);
+  assert.equal(report.issues.filter((issue) => issue.excerpt === '中文?').length, 0);
+});

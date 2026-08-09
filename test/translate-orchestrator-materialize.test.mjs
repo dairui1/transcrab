@@ -23,10 +23,11 @@ test('materializePipelineArtifacts writes refined artifacts', async () => {
   });
 
   assert.equal(res.executionMode, 'refined');
+  assert.ok(res.artifacts.final.endsWith('/zh.md'));
   assert.ok(res.createdFiles.some((p) => p.endsWith('01-analysis.md')));
   assert.ok(res.createdFiles.some((p) => p.endsWith('03-draft.md')));
   assert.ok(res.createdFiles.some((p) => p.endsWith('04-critique.md')));
-  assert.ok(res.createdFiles.some((p) => p.endsWith('05-revision.md')));
+  assert.ok(!res.createdFiles.some((p) => p.endsWith('05-revision.md')));
 
   const prompt = await fs.readFile(path.join(out, '02-prompt.md'), 'utf8');
   assert.match(prompt, /auto-resolved-mode: refined/);
@@ -35,6 +36,10 @@ test('materializePipelineArtifacts writes refined artifacts', async () => {
   assert.match(draft, /Initial Translation Draft/);
 
   const critique = await fs.readFile(path.join(out, '04-critique.md'), 'utf8');
-  assert.match(critique, /factual accuracy/);
-  assert.match(critique, /markdown integrity/);
+  assert.match(critique, /awaiting applied draft/);
+  assert.match(critique, /semantic review/);
+  assert.doesNotMatch(critique, /TODO/);
+
+  const analysis = await fs.readFile(path.join(out, '01-analysis.md'), 'utf8');
+  assert.doesNotMatch(analysis, /TODO/);
 });

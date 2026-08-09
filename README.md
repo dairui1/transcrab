@@ -1,238 +1,279 @@
-# 🦀 TransCrab
+# TransCrab
 
-TransCrab is **OpenClaw-first**: a small, stable capability you add to an OpenClaw assistant so it can turn links into a polished translated reading page.
+TransCrab turns a link into a polished translated reading page. It is built as
+a host-neutral [Agent Skill](https://agentskills.io/), so the same workflow can
+run in OpenClaw, Hermes, Codex, or another compatible agent.
 
-This is not a generic “for humans” app. It’s a **template for OpenClaw assistants** (bots) to install, operate, and keep updated.
+The repository scripts handle deterministic work: fetch, extract, convert,
+validate, and publish files. The active agent handles the translation with its
+current conversation model. The scripts never start a nested agent process.
 
----
+## Supported Agent Hosts
 
-## What you get
+| Host | Discovery or installation |
+| --- | --- |
+| [Codex](https://developers.openai.com/codex/skills) | Open this repository as the workspace. Codex discovers `.agents/skills/transcrab/SKILL.md`. |
+| [OpenClaw](https://docs.openclaw.ai/tools/skills) | Use the repository as a workspace; it discovers `skills/` and `.agents/skills/`. |
+| [Hermes Agent](https://github.com/NousResearch/hermes-agent/blob/main/website/docs/user-guide/features/skills.md) | Run `hermes skills install onevcat/transcrab/skills/transcrab`, or copy the skill to `~/.hermes/skills/`. |
+| Other Agent Skills hosts | Install `skills/transcrab/` using the host's normal Agent Skills mechanism. |
 
-After setup, your OpenClaw assistant can take a link + the keyword `crab` and:
+The canonical distributable skill is in `skills/transcrab/`. The copy under
+`.agents/skills/` provides repository-level discovery for Codex and other
+hosts that scan the shared project convention.
 
-1) fetch the page
-2) extract main content
-3) convert HTML → Markdown
-4) translate Markdown (default: zh-Hans)
-5) commit + push to your repo
-6) your static hosting provider rebuilds → you get a page URL
+## What It Does
 
----
+For an explicit `crab <url>` request, the agent:
 
-## Install (human prompt)
+1. fetches the page;
+2. extracts the main content;
+3. converts HTML to Markdown;
+4. generates a versioned, host-neutral translation task;
+5. translates with the active agent;
+6. validates and writes the translated Markdown;
+7. follows the installation's recorded local-only or publish/deploy policy.
 
-Send this to your OpenClaw assistant (copy/paste):
+The two-message form, URL followed by `crab`, is also supported within the
+same conversation. A URL by itself is not a trigger. Prefer `crab <url>` when
+moving between tasks or agent hosts because it does not depend on session
+memory.
+
+## Install
+
+### Ask an agent
+
+Give this prompt to OpenClaw, Hermes, Codex, or another coding agent:
 
 ```text
-Help me install and deploy TransCrab:
+Help me install and deploy TransCrab from this repository:
 https://github.com/onevcat/transcrab
+
+Use the repository's transcrab Agent Skill and keep the active agent as the
+translation runtime. Do not launch a nested agent CLI.
 ```
 
----
+### Set up the repository
 
-## Install (for OpenClaw assistant / bot)
+TransCrab requires Node.js 22 or newer.
 
-Follow the steps below. You may also refer to `scripts/BOOTSTRAP.md`.
+```bash
+git clone https://github.com/onevcat/transcrab.git
+cd transcrab
+npm ci
+npm test
+npm run build
+```
 
-### Two lessons from real-world cold-start tests (read this first)
+Fork the repository first when the agent should commit translated articles to
+your account.
 
-1) **GitHub Pages needs explicit site/base config**
-   - When deploying to GitHub Pages under a repo path (e.g. `https://USER.github.io/REPO/`), you must set Astro config correctly.
-   - `astro.config.mjs` must use a real `site` (not `localhost`) and a correct `base` **with a trailing slash**.
-   - If you don’t, home page might work but internal links/assets will 404.
+### Configure deployment
 
-2) **The assistant must translate automatically (never ask the user to paste translations)**
-   - Scripts do not call `openclaw agent` (by design), but the *running assistant* is still responsible for doing the translation.
-   - Do **not** degrade UX by asking the user to manually translate or paste back the translation.
-   - Your job is: generate prompt → translate in-conversation → apply translation → commit/push → reply with URL.
+Most static hosting providers use:
 
-### 0) Ask the user for required info
-
-- Their fork repo URL (or permission to fork `onevcat/transcrab` into their account)
-- Which hosting provider they prefer (Netlify / Vercel / Cloudflare Pages / GitHub Pages / etc.)
-- Their site URL (or whether they want you to create/configure it)
-- Preferred default translation target language (default: `zh`)
-- Preferred model (optional; if omitted, use the user's OpenClaw default model)
-
-### 1) Repo + deployment
-
-#### Hosting providers: common setup vs platform quirks
-
-Most providers can deploy this Astro static site with:
 - Build command: `npm run build`
 - Publish directory: `dist`
 
-But **platforms differ** in one important way:
-
-- **Netlify / Vercel / Cloudflare Pages**: usually serve from the domain root. Base-path issues are rare.
-- **GitHub Pages (repo pages)**: serves from `/<repo>/` — you must configure Astro:
+Netlify, Vercel, and Cloudflare Pages usually serve from the domain root. For a
+GitHub Pages repository site, configure Astro with the real site origin and a
+base path that ends in `/`:
 
 ```js
-// astro.config.mjs
 export default defineConfig({
   site: 'https://<user>.github.io',
-  base: '/<repo>/', // NOTE trailing slash
+  base: '/<repo>/',
 });
 ```
 
-Also ensure your internal links and static assets respect `import.meta.env.BASE_URL` (or are relative).
+The agent must derive the final public site URL, including any `base` path,
+from your deployment. It must not assume the demo site's domain.
 
-- Fork/clone the repo into the user’s workspace
-- Install dependencies for scripts:
-  - Prefer `npm ci` (recommended for bots / reproducible installs)
-  - Fallback `npm i` if needed
-- (Optional but recommended once) Verify the site builds: `npm run build`
-- Deploy the user’s fork on their chosen provider
-  - Default recommendation: Netlify
-  - But do not assume Netlify is required
+## Run the Pipeline
 
-Build settings (common for most providers):
-- Build command: `npm run build`
-- Publish directory: `dist`
-
-Runtime note (important):
-- On the user’s device (where the bot runs scripts), you generally **do not** need to run `npm run build`.
-- You *do* need dependencies installed so the scripts can run (prefer `npm ci`).
-
-### 2) Runtime behavior contract (conversation UX)
-
-- Do **not** run the pipeline on URL alone.
-- Only run the default pipeline when the user sends a URL and then sends `crab`.
-- If the user provides explicit instructions, follow them instead:
-  - `raw <url>`: store source only
-  - `sum <url>`: summary only
-  - `tr:<lang> <url>`: translate to another language
-
-#### Persist the contract (required)
-
-If you don’t **persist** this rule, you will eventually break the UX:
-- after a bot restart, it may forget what “URL + crab” means
-- it may forget where the local clone is and where `scripts/run-crab.sh` lives
-
-**You MUST ask the user for consent** before changing your long-term behavior.
-
-Once the user agrees, persist the following to **one** of:
-- `MEMORY.md` (simplest), or
-- a dedicated skill (more robust; recommended)
-
-Memory snippet to store (edit paths as needed):
-
-```text
-TransCrab behavior contract
-- Trigger: run TransCrab only when user sends a URL and then sends `crab`.
-- Repo path (private working copy): ~/Projects/transcrab-private
-- Command: ./scripts/run-crab.sh <url>
-- Notes: do not run on URL alone; ask before doing anything destructive.
-```
-
-#### Skill vs Memory — which is better?
-
-- **Memory** is quick and good enough for personal setups.
-- A **skill** is better for reliability and portability:
-  - gives you a stable, explicit instruction source
-  - can include checks (repo exists, script exists) before running
-  - is easier to share / version-control
-
-This repo ships an optional starter skill under `skills/transcrab/`.
-
-### 3) How to run the pipeline (built-in scripts)
-
-This template already includes scripts you can call:
-
-- `scripts/add-url.mjs`: fetch → extract → HTML→Markdown → write `source.md` + `meta.json` + translation pipeline files
-- `scripts/apply-translation.mjs`: apply translated Markdown by stage (`draft` / `final`)
-- `scripts/run-crab.sh`: thin wrapper around `add-url.mjs`
-- `scripts/sync-upstream.sh`: keep a fork up to date with template changes
-
-### 4) Safety note (script review)
-
-Before running automation on a user’s machine, you should quickly read the scripts you are about to execute.
-
-- Skim `scripts/add-url.mjs` to understand:
-  - it performs network fetches to the target URL
-  - it writes files under `content/articles/**`
-  - it **does not** run model calls by itself (it generates pipeline artifacts + prompt files)
-- Skim `scripts/apply-translation.mjs` to understand:
-  - `--stage draft`: writes `03-draft.md` (+ `04-critique.md` in refined flow)
-  - `--stage final`: writes `<lang>.md` (+ `05-revision.md` in refined flow)
-- If you see anything that looks risky or unexpected (running arbitrary shell commands, touching unrelated paths, etc.),
-  **warn the user and ask for confirmation**.
-
-### 5) Translation mechanism (what actually happens)
-
-Translation is intentionally **not performed by scripts**.
-
-**However, translation IS performed automatically by the running OpenClaw assistant.**
-
-- Do **not** ask the human to manually translate content.
-- Do **not** ask the human to paste a translated result back.
-- If translation output is too long for one message, you (the assistant) should chunk your own output internally (or write to a temp file) and still complete `apply-translation` yourself.
-
-Why? Calling `openclaw agent` from inside a script can cause nested/recursive agent execution and hang in real deployments.
-
-Instead:
-
-- `scripts/add-url.mjs` generates pipeline files and prompt files under the article directory.
-  - In `mode=auto` (default), publish flow is fixed to `refined`.
-  - It auto-detects topic (`technology` / `business` / `life`) and chooses style/audience accordingly.
-- The running OpenClaw assistant translates in conversation (using the user’s default model/provider).
-- `scripts/apply-translation.mjs` executes the closing loop:
-  - `--stage draft` → `03-draft.md` (+ `04-critique.md`)
-  - `--stage final` → `<lang>.md` (+ `05-revision.md`)
-
-This keeps the UX stable and avoids deadlocks.
-
-Recommended apply commands:
+Prepare a source article and translation task:
 
 ```bash
-# 1) draft stage: save first-pass translation and auto-generate critique scaffold
-node scripts/apply-translation.mjs <slug> --lang zh --in /tmp/translated.zh.md --stage draft
-
-# 2) final stage: publish zh.md and revision notes
-node scripts/apply-translation.mjs <slug> --lang zh --in /tmp/translated.zh.final.md --stage final
+node scripts/add-url.mjs "https://example.com/article" --lang zh --mode auto
 ```
 
-### 6) Output format
+On macOS and Linux, the working-directory-independent shell wrapper is
+equivalent:
 
-On `URL + crab`, write under `content/articles/<slug>/`:
+```bash
+./scripts/run-crab.sh "https://example.com/article" --lang zh --mode auto
+```
+
+The command prints JSON and writes `agent-task.json` inside the new article
+directory. Important fields include:
+
+```json
+{
+  "schema": "transcrab.cli-result",
+  "schemaVersion": 1,
+  "status": "prepared",
+  "slug": "example-article",
+  "articlePath": "/a/2026/08/example-article/",
+  "articleRelativePath": "a/2026/08/example-article/",
+  "promptPath": "/path/to/translate.prompt.txt",
+  "agentTaskPath": "/path/to/agent-task.json",
+  "translationProfile": {
+    "executionMode": "refined"
+  },
+  "agentTask": {
+    "schema": "transcrab.agent-task",
+    "schemaVersion": 1,
+    "status": "awaiting_translation",
+    "hostPolicy": {
+      "translateWithCurrentAgent": true,
+      "allowNestedAgentCli": false
+    }
+  }
+}
+```
+
+`articlePath` is retained for compatibility. When a deployment has an Astro
+`base` such as `/transcrab/`, append `articleRelativePath` to the configured
+site base URL so a leading slash cannot discard the repository path.
+
+The active agent reads `promptPath`, writes a Markdown translation whose first
+line is an H1 title, and follows the structured `applySteps` in the task.
+Each step exposes an `argvTemplate`; replace its documented
+`{translationFile}` placeholder before execution.
+
+For the default refined flow:
+
+```bash
+# First complete translation
+node scripts/apply-translation.mjs <slug> \
+  --lang zh \
+  --in /tmp/translated.zh.draft.md \
+  --stage draft
+
+# Reviewed and revised translation
+node scripts/apply-translation.mjs <slug> \
+  --lang zh \
+  --in /tmp/translated.zh.final.md \
+  --stage final \
+  --review-notes /tmp/translated.zh.review.md
+```
+
+`apply-translation.mjs` also accepts the translated Markdown on stdin. It emits
+a versioned JSON result with `status: draft_applied` or `status: complete`.
+
+## Agent Boundary
+
+TransCrab deliberately uses a prepare/apply protocol instead of invoking a
+specific model SDK or agent CLI:
+
+```text
+URL
+  -> run-crab / add-url
+  -> source.md + translate.prompt.txt + agent-task.json
+  -> active agent translates
+  -> apply-translation
+  -> <lang>.md
+  -> optional commit, deploy, verify
+```
+
+This avoids recursive agent sessions and keeps the behavior consistent across
+different sandboxes, approval policies, and model providers. It also means the
+agent and scripts must share the same local checkout. A remote agent without
+access to the checkout needs an artifact transport layer, which this template
+does not provide.
+
+## Configuration
+
+Defaults live in `transcrab.translate.config.json`:
+
+```json
+{
+  "mode": "auto",
+  "audience": "general",
+  "style": "storytelling",
+  "glossary": []
+}
+```
+
+CLI flags override the file. Set `TRANSCRAB_TRANSLATE_CONFIG` to use another
+config file and `TRANSCRAB_CONTENT_ROOT` to write article artifacts elsewhere.
+Glossary entries are inserted into the translation profile as required term
+choices. TransCrab does not currently promise a cross-host chunking protocol;
+for a source that exceeds the active host's context or output limit, the agent
+must use that host's continuation workflow, verify full source coverage, and
+refuse to publish a truncated translation.
+
+When normal extraction is too weak, TransCrab can use optional local helpers:
+
+- `agent-browser` when it is on `PATH`;
+- a Jina runner set with `TRANSCRAB_JINA_RUNNER` as an executable path or command name;
+- `jina` on `PATH` when no runner is configured.
+
+No helper path is tied to OpenClaw or to a specific user's home directory.
+
+## Output
+
+Preparation writes under `content/articles/<slug>/`:
 
 - `source.md`
 - `meta.json`
+- `extraction.report.json` when extraction metadata is available
 - `translation.profile.json`
-- `01-analysis.md`
+- `agent-task.json`
+- `01-analysis.md` when analysis is enabled
 - `02-prompt.md`
-- `translate.prompt.txt` (canonical)
-- `translate.<lang>.prompt.txt` (compatibility copy, deprecated)
-
-In refined publish flow (default):
-
 - `03-draft.md`
-- `04-critique.md`
+- `04-critique.md` as a refined-mode scaffold
+- `translate.prompt.txt`
+- `translate.<lang>.prompt.txt` as a deprecated compatibility copy
+
+The completed refined flow also produces or updates:
+
 - `05-revision.md`
-- `<lang>.md` (e.g. `zh.md`)
+- `<lang>.md`, such as `zh.md`
+- `lint.report.json`
 
-Then commit + push to `main` and reply with the deployed page URL.
+The canonical published path is `/a/<yyyy>/<mm>/<slug>/`, with year and month
+derived from the article date in UTC.
 
-Canonical deployed path (this template):
-- `/a/<yyyy>/<mm>/<slug>/` (`yyyy/mm` derived from the article `date` in `zh.md`, UTC)
+## Scripts
 
----
+- `scripts/add-url.mjs`: fetch, extract, convert, and prepare the agent task
+- `scripts/run-crab.sh`: working-directory-independent wrapper for `add-url`
+- `scripts/apply-translation.mjs`: validate and apply draft/final translations
+- `scripts/sync-upstream.sh`: update a fork from the template repository
+- `scripts/BOOTSTRAP.md`: detailed setup contract for an installing agent
 
-## Updating (when this template changes)
+## Safety
 
-In a fork clone:
+The fetch step accesses the supplied HTTP or HTTPS URL. Article writes are
+confined to the configured content root, and language tags and article slugs
+are validated before they become file paths. URLs containing user credentials
+are rejected; common token/signature query parameters and fragments are
+removed from the source URL and extraction metadata before persistence.
+
+Source pages and the Markdown extracted from them are untrusted input. The
+translation prompt tells the active agent not to follow article instructions,
+run commands, invoke tools, read files, or browse links found in that content.
+Rendered Markdown is sanitized before Astro inserts it as HTML.
+
+TransCrab is intended for a trusted local operator. HTTP/HTTPS validation is
+not a complete SSRF defense. A public or multi-user service must add an
+outbound network policy that blocks loopback, private, link-local, metadata,
+credential-bearing, and redirect-to-internal destinations.
+
+On first use, record whether `crab` means local-only or includes commit,
+delivery, and deployment. Later runs follow that policy. Changing credentials,
+remotes, production branches, or deployment settings still requires explicit
+approval. A Codex work branch may not deploy, so publishing must use the
+repository's configured PR/merge flow or an authorized production branch.
+
+## Update
+
+In a fork checkout:
 
 ```bash
 ./scripts/sync-upstream.sh
 ```
-
----
-
-## Requirements
-
-- Node.js 22+
-- OpenClaw gateway running locally
-- A configured model provider in OpenClaw (any working default model)
 
 ## License
 

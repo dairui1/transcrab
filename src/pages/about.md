@@ -6,17 +6,19 @@ description: 水淡如常，月照如初
 
 ## 抓取 · 翻译 · 阅读
 
-TransCrab 是一个 **[OpenClaw](https://openclaw.ai/)-first** 的小站模板：把链接变成更适合阅读的中文页面，并以静态站点的形式发布。
+TransCrab 是一个基于 **[Agent Skills](https://agentskills.io/)** 开放格式的小站模板：把链接变成更适合阅读的翻译页面，并以静态站点的形式发布。
 
-它更像是一次“写给 OpenClaw 的项目尝试”：你可以让 OpenClaw 助理在本地运行脚本，自动抓取与整理内容，然后提交到仓库，托管平台自动部署。
+OpenClaw、Hermes、Codex 等兼容宿主都可以在本地运行同一套流程。脚本负责抓取、整理与校验，当前会话中的助理负责翻译，再由托管平台自动部署。
 
-## 一键部署（给 OpenClaw）
+## 交给你的助理部署
 
-把这段发给你的 OpenClaw 助理（复制粘贴）——这样你就能拥有一个和本站类似的「链接 → 文章」阅读体验：
+把这段发给 OpenClaw、Hermes、Codex 或其他编码助理，就能搭建同样的「链接 → 文章」阅读体验：
 
 ```text
 Help me install and deploy TransCrab:
 https://github.com/onevcat/transcrab
+
+Use the repository's Agent Skill and do not launch a nested agent CLI.
 ```
 
 - 开源仓库：<https://github.com/onevcat/transcrab>

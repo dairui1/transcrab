@@ -1,0 +1,96 @@
+{
+  "schema": "transcrab.agent-task",
+  "schemaVersion": 1,
+  "status": "complete",
+  "kind": "translate-markdown",
+  "executionMode": "refined",
+  "workingDirectory": "repository-root",
+  "article": {
+    "slug": "verifiability-is-the-limit",
+    "targetLanguage": "zh"
+  },
+  "input": {
+    "base": "agent-task-directory",
+    "promptPath": "translate.prompt.txt",
+    "promptCompatPath": "translate.zh.prompt.txt"
+  },
+  "output": {
+    "format": "markdown",
+    "title": "First non-empty line must be an H1 heading",
+    "body": "One blank line followed by the translated body",
+    "codeFence": false
+  },
+  "review": {
+    "required": true,
+    "afterStage": "draft",
+    "inputs": [
+      "source prompt",
+      "03-draft.md",
+      "04-critique.md"
+    ],
+    "criteria": [
+      "factual accuracy",
+      "terminology",
+      "markdown integrity",
+      "readability"
+    ],
+    "evidence": "Provide a Markdown file through the final apply step reviewNotesFile placeholder"
+  },
+  "applySteps": [
+    {
+      "stage": "draft",
+      "argvTemplate": [
+        "node",
+        "scripts/apply-translation.mjs",
+        "verifiability-is-the-limit",
+        "--lang",
+        "zh",
+        "--in",
+        "{translationFile}",
+        "--stage",
+        "draft"
+      ],
+      "placeholders": {
+        "translationFile": {
+          "type": "path",
+          "description": "Path to the first complete translation"
+        }
+      }
+    },
+    {
+      "stage": "final",
+      "argvTemplate": [
+        "node",
+        "scripts/apply-translation.mjs",
+        "verifiability-is-the-limit",
+        "--lang",
+        "zh",
+        "--in",
+        "{translationFile}",
+        "--stage",
+        "final",
+        "--review-notes",
+        "{reviewNotesFile}"
+      ],
+      "placeholders": {
+        "translationFile": {
+          "type": "path",
+          "description": "Path to the reviewed final translation"
+        },
+        "reviewNotesFile": {
+          "type": "path",
+          "description": "Path to completed review and revision notes without TODO markers"
+        }
+      }
+    }
+  ],
+  "hostPolicy": {
+    "translateWithCurrentAgent": true,
+    "allowNestedAgentCli": false
+  },
+  "completedStages": [
+    "draft",
+    "final"
+  ],
+  "updatedAt": "2026-08-10T16:50:49.519Z"
+}

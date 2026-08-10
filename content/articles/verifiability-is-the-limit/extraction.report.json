@@ -1,0 +1,99 @@
+{
+  "selected": {
+    "source": "readability",
+    "score": 297,
+    "metrics": {
+      "chars": 11269,
+      "paragraphs": 23,
+      "headings": 0,
+      "codeFences": 0,
+      "images": 0,
+      "htmlFigures": 0,
+      "inlineSvgs": 0,
+      "score": 297
+    },
+    "url": "https://alperenkeles.com/posts/verifiability-is-the-limit/"
+  },
+  "qualityGate": {
+    "minChars": 400,
+    "minParagraphs": 3,
+    "minHeadings": 0
+  },
+  "candidates": [
+    {
+      "source": "readability",
+      "score": 297,
+      "metrics": {
+        "chars": 11269,
+        "paragraphs": 23,
+        "headings": 0,
+        "codeFences": 0,
+        "images": 0,
+        "htmlFigures": 0,
+        "inlineSvgs": 0,
+        "score": 297
+      },
+      "url": "https://alperenkeles.com/posts/verifiability-is-the-limit/"
+    },
+    {
+      "source": "variant-readability",
+      "score": 297,
+      "metrics": {
+        "chars": 11269,
+        "paragraphs": 23,
+        "headings": 0,
+        "codeFences": 0,
+        "images": 0,
+        "htmlFigures": 0,
+        "inlineSvgs": 0,
+        "score": 297
+      },
+      "url": "https://alperenkeles.com/posts/verifiability-is-the-limit/?output=1"
+    },
+    {
+      "source": "variant-readability",
+      "score": 297,
+      "metrics": {
+        "chars": 11269,
+        "paragraphs": 23,
+        "headings": 0,
+        "codeFences": 0,
+        "images": 0,
+        "htmlFigures": 0,
+        "inlineSvgs": 0,
+        "score": 297
+      },
+      "url": "https://alperenkeles.com/posts/verifiability-is-the-limit/?amp=1"
+    },
+    {
+      "source": "variant-readability",
+      "score": 297,
+      "metrics": {
+        "chars": 11269,
+        "paragraphs": 23,
+        "headings": 0,
+        "codeFences": 0,
+        "images": 0,
+        "htmlFigures": 0,
+        "inlineSvgs": 0,
+        "score": 297
+      },
+      "url": "https://alperenkeles.com/posts/verifiability-is-the-limit/?print=1"
+    },
+    {
+      "source": "variant-readability",
+      "score": 297,
+      "metrics": {
+        "chars": 11269,
+        "paragraphs": 23,
+        "headings": 0,
+        "codeFences": 0,
+        "images": 0,
+        "htmlFigures": 0,
+        "inlineSvgs": 0,
+        "score": 297
+      },
+      "url": "https://alperenkeles.com/posts/verifiability-is-the-limit/?view=amp"
+    }
+  ]
+}

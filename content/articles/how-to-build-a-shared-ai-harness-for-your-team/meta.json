@@ -1,0 +1,73 @@
+{
+  "slug": "how-to-build-a-shared-ai-harness-for-your-team",
+  "title": "How to Build a Shared AI Harness for Your Team",
+  "date": "2026-08-11T12:30:14.543Z",
+  "sourceUrl": "https://x.com/VibeMarketer_/status/2086808854898323774",
+  "targetLang": "zh",
+  "extraction": {
+    "selected": {
+      "source": "x-article",
+      "score": 999
+    },
+    "candidates": [
+      {
+        "source": "x-article",
+        "score": 999,
+        "metrics": {
+          "chars": 11469,
+          "paragraphs": 74,
+          "headings": 7,
+          "codeFences": 0,
+          "images": 4,
+          "htmlFigures": 0,
+          "inlineSvgs": 0,
+          "score": 758
+        }
+      }
+    ],
+    "qualityGate": {
+      "minChars": 400,
+      "minParagraphs": 3,
+      "minHeadings": 1
+    }
+  },
+  "inlineSvgPlaceholders": 0,
+  "translationProfile": {
+    "mode": "auto",
+    "audience": "business",
+    "style": "business",
+    "glossary": [],
+    "steps": [
+      "auto-analyze",
+      "translate"
+    ],
+    "executionMode": "refined",
+    "autoProfile": {
+      "requestedMode": "auto",
+      "topic": "business",
+      "confidence": 0.78,
+      "resolved": {
+        "mode": "refined",
+        "style": "business",
+        "audience": "business",
+        "glossary": []
+      },
+      "metrics": {
+        "words": 1772,
+        "codeBlocks": 0,
+        "tableRows": 0,
+        "headings": 7,
+        "links": 4,
+        "businessHits": 3,
+        "lifeHits": 0,
+        "isLong": false,
+        "isVeryLong": false,
+        "isTechnical": false
+      },
+      "reasons": [
+        "公开发布默认使用 refined 流程，优先质量与稳定性",
+        "商业关键词命中较高，判定为 business"
+      ]
+    }
+  }
+}

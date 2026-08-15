@@ -1,0 +1,99 @@
+{
+  "selected": {
+    "source": "readability",
+    "score": 397,
+    "metrics": {
+      "chars": 6176,
+      "paragraphs": 32,
+      "headings": 15,
+      "codeFences": 0,
+      "images": 1,
+      "htmlFigures": 0,
+      "inlineSvgs": 0,
+      "score": 397
+    },
+    "url": "https://docs.langchain.com/langsmith/observability-concepts"
+  },
+  "qualityGate": {
+    "minChars": 400,
+    "minParagraphs": 3,
+    "minHeadings": 1
+  },
+  "candidates": [
+    {
+      "source": "readability",
+      "score": 397,
+      "metrics": {
+        "chars": 6176,
+        "paragraphs": 32,
+        "headings": 15,
+        "codeFences": 0,
+        "images": 1,
+        "htmlFigures": 0,
+        "inlineSvgs": 0,
+        "score": 397
+      },
+      "url": "https://docs.langchain.com/langsmith/observability-concepts"
+    },
+    {
+      "source": "variant-readability",
+      "score": 397,
+      "metrics": {
+        "chars": 6176,
+        "paragraphs": 32,
+        "headings": 15,
+        "codeFences": 0,
+        "images": 1,
+        "htmlFigures": 0,
+        "inlineSvgs": 0,
+        "score": 397
+      },
+      "url": "https://docs.langchain.com/langsmith/observability-concepts?output=1"
+    },
+    {
+      "source": "variant-readability",
+      "score": 397,
+      "metrics": {
+        "chars": 6176,
+        "paragraphs": 32,
+        "headings": 15,
+        "codeFences": 0,
+        "images": 1,
+        "htmlFigures": 0,
+        "inlineSvgs": 0,
+        "score": 397
+      },
+      "url": "https://docs.langchain.com/langsmith/observability-concepts?amp=1"
+    },
+    {
+      "source": "variant-readability",
+      "score": 397,
+      "metrics": {
+        "chars": 6176,
+        "paragraphs": 32,
+        "headings": 15,
+        "codeFences": 0,
+        "images": 1,
+        "htmlFigures": 0,
+        "inlineSvgs": 0,
+        "score": 397
+      },
+      "url": "https://docs.langchain.com/langsmith/observability-concepts?print=1"
+    },
+    {
+      "source": "variant-readability",
+      "score": 397,
+      "metrics": {
+        "chars": 6176,
+        "paragraphs": 32,
+        "headings": 15,
+        "codeFences": 0,
+        "images": 1,
+        "htmlFigures": 0,
+        "inlineSvgs": 0,
+        "score": 397
+      },
+      "url": "https://docs.langchain.com/langsmith/observability-concepts?view=amp"
+    }
+  ]
+}

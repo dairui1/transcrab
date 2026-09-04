@@ -70,9 +70,11 @@ AI 模型拥有惊人的创造潜力，但训练方式压抑了这种创造力�
 
 举个简单例子，我给四个 Claude Code 实例发了同一条提示词：
 
-**提示词：**
+**Prompt (English):**
 
-> *为我的效率 App 构建一个落地页。*
+> *Build me a landing page for my productivity app.*
+>
+> **中文：** 为我的效率 App 构建一个落地页。
 
 **Claude Opus 5：**
 
@@ -82,9 +84,11 @@ AI 模型拥有惊人的创造潜力，但训练方式压抑了这种创造力�
 
 我们没有要求模型做出独特或多变的东西，它不断退回自己熟悉的模式也很合理。但只要求“多样化”并不起作用：
 
-**提示词：**
+**Prompt (English):**
 
-> *为我的效率 App 构建一个落地页。给我一个完全独特的方案。每一项设计决策都要彻底随机。*
+> *Build me a landing page for my productivity app. Give me something totally unique. Make every design decision completely at random.*
+>
+> **中文：** 为我的效率 App 构建一个落地页。给我一个完全独特的方案。每一项设计决策都要彻底随机。
 
 **Claude Opus 5：**
 
@@ -94,7 +98,19 @@ AI 模型拥有惊人的创造潜力，但训练方式压抑了这种创造力�
 
 **问题在于，模型天生无法真正随机行事。** 它只能预测最可能出现的词元。如果想要多样性，就必须从模型外部引入。Sakana AI [发布的](https://pub.sakana.ai/ssot/)“字符串思维种子”（String Seed of Thought）就是一种方法。我们让 AI 生成随机字符串，再以它作为设计灵感。这样，模型每一次才会真正做出不同选择。
 
-**提示词：**
+**Prompt (English):**
+
+> *I want you to build me a landing page for my productivity app.*
+>
+> *Follow this procedure:*
+>
+> 1. *Generate a long, random alphanumeric string using a shell script.*
+> 2. *Define the creative direction (color scheme, layout, typography, etc.) based on the string. Look beyond the surface for subpatterns, special numbers, anything that inspires you.*
+> 3. *Use your judgment to bring this direction to life and make it look great.*
+>
+> *Don’t reveal the string in the design. It’s only for your inspiration.*
+
+**中文翻译：**
 
 > *我希望你为我的效率 App 构建一个落地页。*
 >
@@ -116,15 +132,21 @@ AI 模型拥有惊人的创造潜力，但训练方式压抑了这种创造力�
 
 另一种强力推动模型的方法，是把提示词写得更具体、更天马行空。这样模型就有一个清晰愿景作为决策依据，而不是临场随意编造。找到独特想法的最好方式，是把你自己的品味加入其中。先想象一个灵感来源，比如电子游戏、室内设计潮流或艺术装置，再描述你希望它如何影响 AI 的输出。下面是一些例子：
 
-> *“为我的效率 App 构建一个落地页，采用大胆的像素艺术主题和惊艳图形。每个区块都应该像电子游戏中的一帧画面，但整体又必须真的能作为落地页使用。”*
+> *“Build me a landing page for my productivity app, with a bold pixel art theme and stunning graphics. Each section should feel like a still from a video game, yet somehow it should all function as a landing page.”*
+>
+> **中文：** “为我的效率 App 构建一个落地页，采用大胆的像素艺术主题和惊艳图形。每个区块都应该像电子游戏中的一帧画面，但整体又必须真的能作为落地页使用。”
 
 [![](https://substackcdn.com/image/fetch/$s_!KhUV!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F3d880aa5-5e31-45f5-99c4-8055dcb87f4a_640x360.webp)](https://substackcdn.com/image/fetch/$s_!KhUV!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F3d880aa5-5e31-45f5-99c4-8055dcb87f4a_640x360.webp)
 
-> *“为我的效率 App 构建一个落地页，把它放进一座鲜活的等距 3D 城市中，用不同的街区或建筑表现各项功能。”*
+> *“Build me a landing page for my productivity app, set in an isometric living 3D city, where different features are somehow represented by neighborhoods or buildings.”*
+>
+> **中文：** “为我的效率 App 构建一个落地页，把它放进一座鲜活的等距 3D 城市中，用不同的街区或建筑表现各项功能。”
 
 [![](https://substackcdn.com/image/fetch/$s_!OSVS!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fa7245156-8c71-4ecc-9897-5ce76e561faf_640x360.gif)](https://substackcdn.com/image/fetch/$s_!OSVS!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fa7245156-8c71-4ecc-9897-5ce76e561faf_640x360.gif)
 
-> *“为我的效率 App 构建一个落地页，使用极度不对称的布局、不协调的色彩和字体，以及令人不安的负空间。打破所有规则，但仍然要让它看起来很棒。”*
+> *“Build me a landing page for my productivity app, with a radically asymmetric layout, dissonant colors and typography, and uncomfortable negative space. Break all the rules but still make it look good.”*
+>
+> **中文：** “为我的效率 App 构建一个落地页，使用极度不对称的布局、不协调的色彩和字体，以及令人不安的负空间。打破所有规则，但仍然要让它看起来很棒。”
 
 [![](https://substackcdn.com/image/fetch/$s_!ycYL!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F220747d1-f561-405f-a95c-7b05fd64731b_640x360.gif)](https://substackcdn.com/image/fetch/$s_!ycYL!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F220747d1-f561-405f-a95c-7b05fd64731b_640x360.gif)
 
@@ -132,11 +154,24 @@ AI 模型拥有惊人的创造潜力，但训练方式压抑了这种创造力�
 
 #### 1\. 让 AI 列出大量创意，刻意不写细节，目标只是启发你的想象力
 
-> *我想为自己的产品创造一种大胆、独特的设计语言。请尽可能多地列出创意，每个只给出简短、高层次的描述。要广，不要深。*
+> *I want to come up with a bold, unique design language for my product. Can you list as many ideas as you can, with short, high-level descriptions? Go broad, not deep.*
+>
+> **中文：** 我想为自己的产品创造一种大胆、独特的设计语言。请尽可能多地列出创意，每个只给出简短、高层次的描述。要广，不要深。
 
 [![](https://substackcdn.com/image/fetch/$s_!fvto!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F0e1d6d22-1828-47d5-b2f6-0d88fef90ae2_1456x571.webp)](https://substackcdn.com/image/fetch/$s_!fvto!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F0e1d6d22-1828-47d5-b2f6-0d88fef90ae2_1456x571.webp)
 
 #### 2\. 把最喜欢的方向可视化，记录你对不同方向的反应，再让 AI 继续细化
+
+> *Industrial Control Panel:*
+>
+> *- I’m imagining something tactile. Clicky, satisfying buttons, nice sounds.*
+> *- Initially I pictured something cartoony or skeuomorphic, but this feels tacky to me. Avoid that.*
+> *- Instead, want consistent components and little touches that land this look without going overboard.*
+> *- Gray gradients would look boring. Need more texture. Maybe we can incorporate some color, while retaining the control panel feel?*
+>
+> *Can you sharpen this one based on my tastes?*
+
+**中文翻译：**
 
 > *工业控制面板：*
 >
@@ -151,7 +186,9 @@ AI 模型拥有惊人的创造潜力，但训练方式压抑了这种创造力�
 
 #### 3\. 持续迭代到满意为止，再让 AI 写出用于构建的提示词
 
-> *你能写一条简洁的提示词，让 AI 智能体据此构建一个初步的 POC 页面吗？*
+> *Can you write a concise prompt that an AI agent could use to build an initial POC page with this?*
+>
+> **中文：** 你能写一条简洁的提示词，让 AI 智能体据此构建一个初步的 POC 页面吗？
 
 [![](https://substackcdn.com/image/fetch/$s_!AVWS!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F4ca0ce7c-c730-443a-bde3-f62996b43c7d_1456x692.png)](https://substackcdn.com/image/fetch/$s_!AVWS!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F4ca0ce7c-c730-443a-bde3-f62996b43c7d_1456x692.png)
 
@@ -181,7 +218,27 @@ AI 模型拥有惊人的创造潜力，但训练方式压抑了这种创造力�
 
 让我们回到之前的设计，用 Claude Fable 5 作为评审员试试看：
 
-**提示词：**
+**Prompt (English):**
+
+> *I want you to improve this design. To figure out what to focus on, use a Fable 5 subagent as a design critic.*
+>
+> *Follow this procedure at each iteration:*
+>
+> *- Capture a screenshot of the current design.*
+> *- Invoke the critic in a fresh context, with just the screenshot, not the code, implementation details, or earlier iterations/critiques.*
+> *- Ask it to evaluate the aesthetic that the design is going for, imagine how a top design studio would execute this aesthetic, then outline the biggest gaps.*
+> *- Lastly, it should provide a score out of 10 indicating how close the current design is to that studio-level quality bar.*
+>
+> *Provide this guidance to the critic in its prompt:*
+>
+> *- It should think high-level about the overall structure and composition as well as look at the fine details.*
+> *- It should watch out for patterns that feel overdone, excessive, or otherwise obviously AI-generated, and penalize them.*
+> *- It should provide tight, specific feedback, not vague prose.*
+> *- It should be bold and opinionated, not rely on what’s safe or easy.*
+>
+> *Your work is only complete when the critic independently deems it 9/10 or higher. Do not put that criterion in the critic prompt; keep it objective in its scoring. Use the same critic prompt each time.*
+
+**中文翻译：**
 
 > *我希望你改进这个设计。为了确定改进重点，请使用一个 Fable 5 子智能体担任设计评审员。*
 >
@@ -212,9 +269,9 @@ AI 模型拥有惊人的创造潜力，但训练方式压抑了这种创造力�
 这类循环如何设置非常重要。下面是一些建议：
 
 * **让批评标准尽可能清晰、客观。**
-  * 差：“判断我们的设计是否漂亮、是否不像 AI 生成。”这太主观了，每次运行得到的结果都可能天差地别。
-  * 尚可：“评估我们追求的美学风格，想象顶级设计工作室会如何实现它，再按照这一标准判断我们的设计质量。”提示词仍然有些模糊，但至少提供了一致的框架和质量标准。
-  * 好：“这里有 5 个设计：4 个专业案例，以及 1 张我们产品的截图。请按完成度和品味水平给它们排序。”这条指令具体、客观，也为判断提供了视觉基准。
+  * 差：英文：“Judge if our design looks beautiful, not AI-generated.” 中文：“判断我们的设计是否漂亮、是否不像 AI 生成。”这太主观了，每次运行得到的结果都可能天差地别。
+  * 尚可：英文：“Review the aesthetic we’re going for, visualize how a top design studio would execute it, then judge our design’s quality against that bar.” 中文：“评估我们追求的美学风格，想象顶级设计工作室会如何实现它，再按照这一标准判断我们的设计质量。”提示词仍然有些模糊，但至少提供了一致的框架和质量标准。
+  * 好：英文：“Here are 5 designs: 4 professional examples and 1 screenshot of our product. Rank them by polish and taste level.” 中文：“这里有 5 个设计：4 个专业案例，以及 1 张我们产品的截图。请按完成度和品味水平给它们排序。”这条指令具体、客观，也为判断提供了视觉基准。
 * **提供示例图片，展示目标质量标准。** 你可以使用可比的截图、自己喜欢的设计，甚至 AI 生成的概念图。告诉评审员把它们当作基准或情绪板，而不是需要复制的目标。你并不希望它直接照抄别人的设计。
 * **谨慎设置停止条件。** 否则，评审员可能永远觉得设计不够好，智能体只能无助地燃烧词元来讨好它。先让它迭代一两轮，观察结果是否正在收敛，再决定要不要增加轮次。
 * **为每项工作选择合适的模型。** 评审员可以考虑更大的模型，因为更多参数通常意味着更好的设计感，以及更广阔的创意分布。小模型可以有效承担实现工作，但不要小得过头，你仍然需要一个有能力把设计方向执行到位的模型。
@@ -227,7 +284,15 @@ AI 模型拥有惊人的创造潜力，但训练方式压抑了这种创造力�
 
 让我们把这个方法用到上一步的设计中：
 
-**提示词：**
+**Prompt (English):**
+
+> *The design is pretty plain. Add more personality using image generation. Consider shaders or 3D effects in combination with images to create more interesting visuals.*
+>
+> *For image generation, use this OpenAI API key (only use it locally, do not store it in the code or product): sk-a1b2c3d4…*
+>
+> *Verify that your work looks right frame-by-frame in the browser.*
+
+**中文翻译：**
 
 > *这个设计相当平淡。使用图像生成赋予它更多个性。考虑把着色器或 3D 效果与图片结合起来，创造更有趣的视觉效果。*
 >
@@ -250,9 +315,9 @@ AI 模型拥有惊人的创造潜力，但训练方式压抑了这种创造力�
 根据你的工具组合，可以用不同方式让智能体接入图像生成工具：
 
 * **如果你使用 Codex、Antigravity 或 Grok Build：** 告诉智能体使用内置的图像生成功能。它本来就知道怎么做，只是除非明确要求，否则很少主动使用。
-* **如果你使用 Claude Code 或其他智能体，同时订阅了 ChatGPT：** 告诉智能体：“使用 Codex CLI 生成图片。如果尚未安装，请帮我安装。确保扣除的是我的订阅额度，而不是通过 API 密钥按量计费。”这样就能使用 ChatGPT 订阅来生成图片，无需额外付费。
+* **如果你使用 Claude Code 或其他智能体，同时订阅了 ChatGPT：** 告诉智能体：“Use the Codex CLI to generate images. Help me install it if it isn’t already present. Make sure it’s billing my subscription, not an API key.” 中文：“使用 Codex CLI 生成图片。如果尚未安装，请帮我安装。确保扣除的是我的订阅额度，而不是通过 API 密钥按量计费。”这样就能使用 ChatGPT 订阅来生成图片，无需额外付费。
 * **如果你只使用 Claude 或其他工具：** 最简单的方式，是向智能体提供 OpenAI 或 Gemini API 密钥来生成图片。我建议专门为智能体创建一个严格限制消费额度的独立密钥。即使密钥泄露或智能体误用，成本也能受到控制；撤销它时，也不会影响其他工作。
-* **如果你经常把密钥粘贴进聊天：** 最好改为把密钥放在文件里，再让项目中的智能体读取。可以这样告诉它：“创建一个被 Git 忽略的 `.env.agents` 文件，把这个 API 密钥存进去，并在 `AGENTS.md`/`CLAUDE.md` 中给自己留下注释：这些密钥可以在开发期间使用，但绝不能随产品发布。”
+* **如果你经常把密钥粘贴进聊天：** 最好改为把密钥放在文件里，再让项目中的智能体读取。可以这样告诉它：“Create a gitignored file called `.env.agents`, store this API key in it, and note to yourself in `AGENTS.md`/`CLAUDE.md` that these keys are for you to use during development (but must not ship with the product).” 中文：“创建一个被 Git 忽略的 `.env.agents` 文件，把这个 API 密钥存进去，并在 `AGENTS.md`/`CLAUDE.md` 中给自己留下注释：这些密钥可以在开发期间使用，但绝不能随产品发布。”
 
 ## 技巧 5：需要更高级的动效时，使用视频生成
 
@@ -268,7 +333,17 @@ AI 模型拥有惊人的创造潜力，但训练方式压抑了这种创造力�
 
 例如，我拿前面的一个设计运行了下面这条提示词：
 
-**提示词：**
+**Prompt (English):**
+
+> *Can you replace the image on this page with a looping video clip that does something more interesting? Have the crystal splinter apart and slowly spin around. It should have awesome glassy effects that refract the page background and cast shadows and light around it.*
+>
+> *To get convincing glass refraction effects, render the video of the glass over the page background colors first (so it bakes in the refraction effects), then remove the background with a video matting model.*
+>
+> *Use this fal.ai API key: sk-a1b2c3d4…*
+>
+> *Find appropriate recent models for video generation and background removal.*
+
+**中文翻译：**
 
 > *你能把页面上的图片替换成一段循环视频，让它做一些更有趣的事情吗？让水晶裂成碎片，并缓慢旋转。它应该拥有惊艳的玻璃质感：折射页面背景，并在周围投射阴影和光线。*
 >
@@ -290,7 +365,21 @@ AI 模型拥有惊人的创造潜力，但训练方式压抑了这种创造力�
 
 下面是一个展示滚动效果的演示页。我在 Codex 中用 GPT-5.6 Sol，只用一条提示词就构建了它：
 
-**提示词：**
+**Prompt (English):**
+
+> *Build a demo page for a suitcase that uses a video model to create interactive transitions between a couple of screens. Each screen should show the suitcase in a different state, with vertical motion that feels appropriate for scrolling:*
+>
+> *- Initially, have the suitcase floating high up in the air.*
+> *- Then have it land on the floor and pop open.*
+> *- Finally, have its contents neatly land into it from the top.*
+>
+> *Generate the initial frame using your image generation skill. Then, generate a video clip that starts from that frame and animates to the next state. Use the final frame of that video to seed the next transition so that it continues seamlessly. Scrub through the transitions one by one as the user scrolls.*
+>
+> *Use this fal.ai API key: sk-a1b2c3d4…*
+>
+> *Use a video model with strong physics and consistency, like Seedance 2.5.*
+
+**中文翻译：**
 
 > *为一只行李箱构建一个演示页面，使用视频模型在几个屏幕画面之间创造交互式过渡。每一屏应展示不同状态下的行李箱，并配合滚动使用合适的垂直运动：*
 >
@@ -322,7 +411,7 @@ AI 喜欢不断添加，却很少主动删减。设计由 AI 生成的最大迹�
 
 [![](https://substackcdn.com/image/fetch/$s_!G64j!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fdc9186ef-2b04-42a0-a460-8898b0590797_1456x964.png)](https://substackcdn.com/image/fetch/$s_!G64j!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fdc9186ef-2b04-42a0-a460-8898b0590797_1456x964.png)
 
-我描述了 App 的功能，还明确要求“干净、极简的设计”。结果并不差，作为完全由 AI 生成的作品，当然也很令人印象深刻。但即使我要求了极简，设计里仍有大量没有贡献价值的东西：
+我描述了 App 的功能，还明确要求“clean, minimalist design”（中文：“干净、极简的设计”）。结果并不差，作为完全由 AI 生成的作品，当然也很令人印象深刻。但即使我要求了极简，设计里仍有大量没有贡献价值的东西：
 
 * 背景和进度条上的粉色发光效果
 * 文字上随意出现的颜色与高亮
@@ -331,9 +420,9 @@ AI 喜欢不断添加，却很少主动删减。设计由 AI 生成的最大迹�
 
 于是，我让 Claude 收敛一些：
 
-* 把布局简化为以图片为中心的网格
-* 去掉渐变、发光和不必要的容器
-* 追求真正极简、具有 Apple 原生感的美学
+* “Simplify the layout into an image-centric grid”（中文：把布局简化为以图片为中心的网格）
+* “Get rid of gradients, glows, and unnecessary containers”（中文：去掉渐变、发光和不必要的容器）
+* “Aim for a truly minimalist aesthetic that feels Apple-native”（中文：追求真正极简、具有 Apple 原生感的美学）
 
 结果如下：
 

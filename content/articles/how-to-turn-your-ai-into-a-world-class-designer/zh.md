@@ -8,12 +8,6 @@ lang: zh
 
 作者：Anshu Chimala · 2026 年 9 月 1 日
 
-*👋 嗨，我是 Lenny。每周我都会分享经过深入研究的产品、增长与职业建议。更多内容：[Lenny’s Jobs](https://www.lennysjobs.com/) | [Lenny’s Podcast](https://www.lennysnewsletter.com/podcast) | [Lennybot](https://www.lennybot.com/) | [How I AI](https://www.youtube.com/@howiaipodcast) | [Become an AI-Native Builder](https://maven.com/tech-for-product/become-an-ai-native-builder)，以及我最喜欢的其他 [AI/PM 课程](https://maven.com/lenny)。*
-
-*附言：成为 Insider 订阅者，即可免费获得一整年的 Cursor、Notion、Replit、Lovable、Wispr Flow、Linear、ElevenLabs、Factory、PostHog、Granola、Brain.fm、Waking Up 等产品（名额有限）。[了解更多](https://www.lennysproductpass.com/)。*
-
-* * *
-
 我一直以为 AI 不擅长设计。但读完 [Anshu Chimala](https://www.linkedin.com/in/achimala/) 这篇令人震撼的文章后，我才意识到，只是我用错了方法。Anshu 曾在 Apple 领导软件工程和设计团队长达 12 年，专注于未来 AI 产品的研究与原型设计。他经常在 [X](https://x.com/anshuc) 上分享设计教程和演示（也是我最喜欢关注的人之一）。如果你想深入了解如何用 AI 打造独特体验，可以看看他的 [Substack](https://substack.com/@anshuc)，或在 [LinkedIn](https://www.linkedin.com/in/achimala/) 上与他联系。
 
 进入正题。

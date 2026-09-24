@@ -1,0 +1,40 @@
+{
+  "profile": {
+    "mode": "refined",
+    "audience": "technical",
+    "style": "faithful",
+    "glossary": [
+      "pstack: pstack",
+      "Dune: Dune",
+      "Grok Bot: Grok Bot",
+      "Bugbot: Bugbot",
+      "feature map: 功能地图（Feature Map）",
+      "heap snapshot: 堆快照",
+      "formal verification: 形式化验证",
+      "invariant: 不变量",
+      "paved path: 标准路径",
+      "outer loop: 外环"
+    ]
+  },
+  "executionMode": "refined",
+  "steps": [
+    "analyze",
+    "translate",
+    "review",
+    "revise"
+  ],
+  "executionSteps": [
+    "analyze",
+    "translate",
+    "review",
+    "revise"
+  ],
+  "artifacts": {
+    "analysis": "01-analysis.md",
+    "assembledPrompt": "02-prompt.md",
+    "draft": "03-draft.md",
+    "critique": "04-critique.md",
+    "revision": "05-revision.md",
+    "final": "zh.md"
+  }
+}

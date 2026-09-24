@@ -1,0 +1,42 @@
+{
+  "slug": "lauren-tan-agent-trust-michelin-kitchen",
+  "title": "I shipped 2,000 (good) PRs last month",
+  "date": "2026-09-24T05:16:02.367Z",
+  "sourceUrl": "https://x.com/poteto/status/2102050467505430555",
+  "targetLang": "zh",
+  "author": "Lauren Tan (@poteto)",
+  "sourcePublishedAt": "2026-09-21T15:01:00Z",
+  "extraction": {
+    "method": "local-video-asr-with-caption-cross-check",
+    "input": "poteto-2102050467505430555.mp4",
+    "durationSeconds": 2282.026667,
+    "engine": "mlx-whisper",
+    "model": "mlx-community/whisper-large-v3-turbo",
+    "passes": 2,
+    "note": "URL extraction failed; prepared from supplied local video using existing pipeline APIs. Raw passes preserved. No remote speech service used."
+  },
+  "translationProfile": {
+    "mode": "refined",
+    "audience": "technical",
+    "style": "faithful",
+    "glossary": [
+      "pstack: pstack",
+      "Dune: Dune",
+      "Grok Bot: Grok Bot",
+      "Bugbot: Bugbot",
+      "feature map: 功能地图（Feature Map）",
+      "heap snapshot: 堆快照",
+      "formal verification: 形式化验证",
+      "invariant: 不变量",
+      "paved path: 标准路径",
+      "outer loop: 外环"
+    ],
+    "steps": [
+      "analyze",
+      "translate",
+      "review",
+      "revise"
+    ],
+    "executionMode": "refined"
+  }
+}

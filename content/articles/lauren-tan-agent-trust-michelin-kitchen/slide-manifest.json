@@ -1,0 +1,238 @@
+{
+  "source": "poteto-2102050467505430555.mp4",
+  "sourceUrl": "https://x.com/poteto/status/2102050467505430555",
+  "method": "Frames extracted directly with ffmpeg; cropped to slide content, no generative edits or reconstructed diagrams.",
+  "frames": [
+    {
+      "file": "/assets/articles/lauren-tan-agent-trust-michelin-kitchen/01-title.webp",
+      "seconds": 5,
+      "referenceWidth": 1200,
+      "crop": [
+        100,
+        100,
+        930,
+        320
+      ]
+    },
+    {
+      "file": "/assets/articles/lauren-tan-agent-trust-michelin-kitchen/02-kitchen.webp",
+      "seconds": 65,
+      "referenceWidth": 1200,
+      "crop": [
+        185,
+        135,
+        445,
+        490
+      ]
+    },
+    {
+      "file": "/assets/articles/lauren-tan-agent-trust-michelin-kitchen/03-contributions.webp",
+      "seconds": 155,
+      "referenceWidth": 1200,
+      "crop": [
+        375,
+        85,
+        400,
+        530
+      ]
+    },
+    {
+      "file": "/assets/articles/lauren-tan-agent-trust-michelin-kitchen/04-trust.webp",
+      "seconds": 335,
+      "referenceWidth": 1200,
+      "crop": [
+        285,
+        145,
+        560,
+        450
+      ]
+    },
+    {
+      "file": "/assets/articles/lauren-tan-agent-trust-michelin-kitchen/05-three-levers.webp",
+      "seconds": 455,
+      "referenceWidth": 1200,
+      "crop": [
+        175,
+        110,
+        815,
+        315
+      ]
+    },
+    {
+      "file": "/assets/articles/lauren-tan-agent-trust-michelin-kitchen/06-verification.webp",
+      "seconds": 605,
+      "referenceWidth": 1200,
+      "crop": [
+        118,
+        82,
+        925,
+        522
+      ]
+    },
+    {
+      "file": "/assets/articles/lauren-tan-agent-trust-michelin-kitchen/07-correction-order.webp",
+      "seconds": 965,
+      "referenceWidth": 1200,
+      "crop": [
+        125,
+        65,
+        900,
+        375
+      ]
+    },
+    {
+      "file": "/assets/articles/lauren-tan-agent-trust-michelin-kitchen/08-pattern-copying.webp",
+      "seconds": 1175,
+      "referenceWidth": 1200,
+      "crop": [
+        95,
+        75,
+        900,
+        435
+      ]
+    },
+    {
+      "file": "/assets/articles/lauren-tan-agent-trust-michelin-kitchen/09-garden.webp",
+      "seconds": 1355,
+      "referenceWidth": 1200,
+      "crop": [
+        160,
+        225,
+        825,
+        312
+      ]
+    },
+    {
+      "file": "/assets/articles/lauren-tan-agent-trust-michelin-kitchen/10-gardeners.webp",
+      "seconds": 1505,
+      "referenceWidth": 1200,
+      "crop": [
+        275,
+        240,
+        650,
+        270
+      ]
+    },
+    {
+      "file": "/assets/articles/lauren-tan-agent-trust-michelin-kitchen/11-dune-context.webp",
+      "seconds": 1606,
+      "referenceWidth": 1600,
+      "crop": [
+        225,
+        55,
+        1110,
+        625
+      ]
+    },
+    {
+      "file": "/assets/articles/lauren-tan-agent-trust-michelin-kitchen/12-five-nouns.webp",
+      "seconds": 1625,
+      "referenceWidth": 1200,
+      "crop": [
+        170,
+        163,
+        830,
+        470
+      ]
+    },
+    {
+      "file": "/assets/articles/lauren-tan-agent-trust-michelin-kitchen/13-process-boundaries.webp",
+      "seconds": 1742,
+      "referenceWidth": 1600,
+      "crop": [
+        225,
+        210,
+        1110,
+        645
+      ]
+    },
+    {
+      "file": "/assets/articles/lauren-tan-agent-trust-michelin-kitchen/14-send-path.webp",
+      "seconds": 1756.85,
+      "referenceWidth": 1600,
+      "crop": [
+        240,
+        100,
+        1110,
+        610
+      ]
+    },
+    {
+      "file": "/assets/articles/lauren-tan-agent-trust-michelin-kitchen/15-feature-discovery.webp",
+      "seconds": 1757.5,
+      "referenceWidth": 1600,
+      "crop": [
+        240,
+        210,
+        1110,
+        615
+      ]
+    },
+    {
+      "file": "/assets/articles/lauren-tan-agent-trust-michelin-kitchen/16-guardrails.webp",
+      "seconds": 1758.6,
+      "referenceWidth": 1600,
+      "crop": [
+        250,
+        30,
+        1100,
+        575
+      ]
+    },
+    {
+      "file": "/assets/articles/lauren-tan-agent-trust-michelin-kitchen/17-single-ownership.webp",
+      "seconds": 1760.8,
+      "referenceWidth": 1600,
+      "crop": [
+        250,
+        175,
+        1110,
+        600
+      ]
+    },
+    {
+      "file": "/assets/articles/lauren-tan-agent-trust-michelin-kitchen/18-feature-blueprint.webp",
+      "seconds": 1775,
+      "referenceWidth": 1200,
+      "crop": [
+        190,
+        65,
+        830,
+        475
+      ]
+    },
+    {
+      "file": "/assets/articles/lauren-tan-agent-trust-michelin-kitchen/19-outer-loop.webp",
+      "seconds": 1955,
+      "referenceWidth": 1200,
+      "crop": [
+        60,
+        35,
+        960,
+        555
+      ]
+    },
+    {
+      "file": "/assets/articles/lauren-tan-agent-trust-michelin-kitchen/20-slack-fix.webp",
+      "seconds": 2088,
+      "referenceWidth": 1600,
+      "crop": [
+        370,
+        180,
+        785,
+        680
+      ]
+    },
+    {
+      "file": "/assets/articles/lauren-tan-agent-trust-michelin-kitchen/21-slack-reproduction.webp",
+      "seconds": 2105,
+      "referenceWidth": 1200,
+      "crop": [
+        285,
+        98,
+        590,
+        510
+      ]
+    }
+  ]
+}

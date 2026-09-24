@@ -1,5 +1,14 @@
 # Translation and Transcript Review
 
+## Slide-aware revision
+
+- Re-inspected the video at 30-second intervals, then at dense intervals around the Dune slide sequence and Slack demonstrations. Extracted 21 real frames, including all 8 Dune slides; source timestamps and crop coordinates are recorded in slide-manifest.json. No generated or reconstructed diagrams.
+- Corrected the Dune terminology: Client is a specific state-owning module, Host holds authoritative state, Transcript card is a feature-owned body for an entry type. Process isolation constrains imports and execution, not all communication; typed contracts cross the boundary.
+- Added clearly labeled slide readouts for send ordering, request keys, optimistic state, file-based discovery, early validation and single-writer ownership. These details were displayed but not fully spoken, so they were not inserted into the English speech transcript.
+- Read the Slack screenshots rather than treating them as generic PR examples: one issue was already fixed on main; the other was a cross-terminal URL/port association bug. Neither demonstration is claimed as independently reproduced here.
+- Distinguished contribution-graph commits from PR counts, and the conceptual trust curve from measured scaling data. Moved the full glossary and English transcript to expandable appendices; retained all 19 Chinese speech chapters and the separate editorial summary.
+- Preserved prior ASR artifacts and transcription boundaries. The earlier draft is retained as historical workflow evidence; final revision replaces the published article.
+
 - Scope: complete 38:02 supplied video, not the short X post. URL extraction was insufficient, so the source was prepared from local ASR using the existing materializePipelineArtifacts API; publication uses the unchanged apply-translation and Pages pipeline.
 - Coverage: all 19 timestamped source sections appear in the Chinese translation in order, plus the full cleaned English transcript. Summary, terminology, and commentary are explicitly editorial and separate from speech.
 - Recovery: first-pass repetition at 557.3-617.3 and 677.3-737.3 seconds was not deleted as if it were filler. A second full pass with condition_on_previous_text=False recovered the CLI and Feature Map material. Both raw passes are retained.

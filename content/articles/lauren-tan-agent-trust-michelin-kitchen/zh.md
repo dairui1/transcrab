@@ -4,39 +4,19 @@ date: '2026-09-24T05:16:02.367Z'
 sourceUrl: 'https://x.com/poteto/status/2102050467505430555'
 lang: zh
 ---
-讲者：Lauren Tan（[@poteto](https://x.com/poteto)）。原视频发布于 2026 年 9 月 21 日，时长约 38 分 02 秒。本文包含完整中文译稿、英文清洗逐字稿，以及单独标明的译者总结。
+**怎样让不在你眼皮底下的 Agent 也把事情做好？** Lauren Tan 的答案不是继续堆提示词，而是把产品知识、验证工具和架构约束一起放进工作环境。
 
-> **整理说明**：根据用户提供的视频进行本地语音识别，清除无实义口癖和紧邻的重复词，补全标点，纠正明显识别错误；保留发言顺序、论述、例子和立场，不以摘要替代正文。时间戳用于定位，小标题由译者添加。视频开场口述和标题页均为 **2,000 个 PR**，原帖配文则写 **2,500 个 PR**，这里按视频保留 2,000，不擅自统一。产出数量及内部工程效果均为讲者自述，不代表独立审计结论。
+讲者：Lauren Tan（[@poteto](https://x.com/poteto)） · 视频发布：2026-09-21 · 时长：38:02
 
-[观看原帖视频](https://x.com/poteto/status/2102050467505430555) · [英文清洗稿](https://github.com/dairui1/transcrab/blob/main/content/articles/lauren-tan-agent-trust-michelin-kitchen/transcript.cleaned.txt) · [英文 ASR 字幕（第二轮，机器时间轴）](https://github.com/dairui1/transcrab/blob/main/content/articles/lauren-tan-agent-trust-michelin-kitchen/transcript.pass2.srt)
 
-## 译者总结：真正需要扩展的不是 Agent 数量
+<figure style="margin: 1.6rem 0"><img src="/assets/articles/lauren-tan-agent-trust-michelin-kitchen/01-title.webp" alt="原视频标题页。本文按讲述顺序保留完整中文译稿，穿插关键幻灯片及单独标明的画面补读。" loading="lazy" width="1800" height="619"><figcaption>00:05 · 原视频标题页。本文按讲述顺序保留完整中文译稿，穿插关键幻灯片及单独标明的画面补读。</figcaption></figure>
 
-**以下是我的总结与判断，不是讲者原话。**
 
-这场演讲的主线不是「如何一次开一百个 Agent」，而是：**先把工程经验变成可执行、可检查、可复用的环境，再增加并行度。** 人不再逐条盯着输出，但仍然对产品结果和工作环境负责。
+[验证与功能地图](#verification) · [纠正的优先顺序](#correction) · [Dune 架构](#dune) · [外环与复现案例](#outer-loop)
 
-1. **验证要同时具备操作能力和产品知识。** CLI 让 Agent 可重复地运行真实应用、采集证据；功能地图让它知道产品有什么、用户如何到达对应功能。只会点击和运行命令，还不足以理解一张含糊的报错截图。
-2. **代码库本身是一种记忆。** Agent 会沿用眼前的模式，因此一次临时绕行可能成为后续大量提交的模板。修正 Agent 时，优先考虑架构、数据结构和静态检查，再补规则与技能，而不是只多写一段提示词。
-3. **把资深工程师的经验沉淀到系统里。** 调试、性能分析、开发流程可以成为团队共享的技能；模块边界、依赖方向和禁止模式则尽可能由工具强制执行。
-4. **自动化的外环负责接收信号、启动工作。** Slack、错误告警等触发任务，云端 Agent 执行，验证机制收集实际证据。扩大吞吐的前提是这些环节能可靠协作，而非一套庞大而神秘的「公司大脑」。
+[观看原视频](https://x.com/poteto/status/2102050467505430555) · [英文清洗稿](https://github.com/dairui1/transcrab/blob/main/content/articles/lauren-tan-agent-trust-michelin-kitchen/transcript.cleaned.txt) · [英文 ASR 字幕](https://github.com/dairui1/transcrab/blob/main/content/articles/lauren-tan-agent-trust-michelin-kitchen/transcript.pass2.srt)
 
-我认为最值得带走的一问是：**这次纠正，能否变成下次不再需要人工纠正的机制？** 但也要保留边界：PR 数量不等于业务价值；运行验证不等于形式化证明；讲者团队对 Dune 的「禁止注释」是特定治理选择，不应直接推广成所有项目的通则。比照搬禁令更重要的是识别注释是否在为本可消除的问题找借口，以及是否把好坏模式都固化进了环境。
-
-## 术语说明
-
-| 原词 | 本文用法 |
-| --- | --- |
-| Agent / skills | 保留 Agent；skills 译为「技能」，指供 Agent 使用的流程与操作知识，不是模型训练能力的泛称。 |
-| pull request / PR | 合并请求（PR）；不与 Git commit「提交」混为一谈。 |
-| verification / formal verification | 验证 / 形式化验证；前者可指运行应用并取证，后者涉及形式化方法与不变量证明。 |
-| performance trace / heap snapshot | 性能追踪记录 / 堆快照；不是「热快照」。 |
-| Feature Map / materialized memory | 功能地图 / 物化记忆，即保存下来的、可供读取的具体记忆载体；这里不是神经网络中的特征图。 |
-| pstack / Control Glass / Dune / Bugbot | 保留名称。pstack 是讲者的技能插件；Control Glass 是视频所述的内部验证技能；Dune 是视频所述的客户端框架，不与同名其他项目混淆；Bugbot 是代码审查产品名。 |
-| paved path / workaround | 标准路径 / 临时绕行方案；分别指团队认可的常规实现方式和绕过问题的权宜实现。 |
-| outer loop / routines | 外环 / 例行自动化任务；用于描述接收外部信号并触发后续工作的流程。 |
-
-产品及公司名称按视频语境保留为 Cursor、Grok Bot、SpaceXAI；人名保留 Lauren Tan。`pstack` 的拼写与作者身份另核对了 [Cursor 插件页](https://cursor.com/marketplace/cursor/pstack)及[官方仓库](https://github.com/cursor/plugins/tree/main/pstack)。内部系统的能力描述以本视频为依据，不视为已经独立验证的公开产品规格。
+> 阅读说明：口述译稿清除了无实义口癖与紧邻重复，保留论述和例子；小标题为编辑添加。**画面补读**只解释原幻灯片与演示截图，不冒充口述。开场标题与口述为 2,000 个 PR，原帖配文为 2,500，本文按视频保留；数量、内部实践与效果均为讲者自述。译者总结与术语附录放在文末。
 
 ## 完整中文译稿
 
@@ -49,6 +29,11 @@ lang: zh
 不过，我不太喜欢「软件工厂」这个说法。我更喜欢「米其林厨房」这个比喻。作为技术工作者，我们并不是在流水线上大批量制造同一种产品。我们的工作富有创造性，是在打造产品，从某种意义上说也是一种艺术。因此，即使有了 Agent，我们不再亲手烹制组成产品的每一道配料，仍然要对最终结果负责，也仍然要思考厨房该怎样布置。
 
 你如何安排各工位的厨师、副厨，他们拥有什么设备、接受什么训练，洗碗工如何安排，以及工位厨师和洗碗工的比例，这些因素都会影响最终成品。我觉得这个比喻非常贴切。
+
+
+
+<figure style="margin: 1.6rem 0"><img src="/assets/articles/lauren-tan-agent-trust-michelin-kitchen/02-kitchen.webp" alt="米其林厨房：人不必亲手完成每道工序，但仍要对环境、工具、分工和最终产品负责。" loading="lazy" width="1276" height="1406"><figcaption>01:05 · 米其林厨房：人不必亲手完成每道工序，但仍要对环境、工具、分工和最终产品负责。</figcaption></figure>
+
 
 ### 02:03 从手工性能排查到验证技能
 
@@ -66,6 +51,11 @@ lang: zh
 
 当时我还没有清楚地认识到这一点，但脑海里一直隐约有个念头：我才是瓶颈。我必须把自己作为工程师积累的知识传递给这支 Agent 团队，这样就不必事事都卡在我这里。现在可以很明显地看到，这种投入得到了回报。
 
+
+
+<figure style="margin: 1.6rem 0"><img src="/assets/articles/lauren-tan-agent-trust-michelin-kitchen/03-contributions.webp" alt="讲者展示的贡献记录。图中的 commits 是提交数，底部的 5,000+ PRs 是她另行陈述的六个月 PR 数量，两者不能混算。" loading="lazy" width="1148" height="1520"><figcaption>02:35 · 讲者展示的贡献记录。图中的 commits 是提交数，底部的 5,000+ PRs 是她另行陈述的六个月 PR 数量，两者不能混算。</figcaption></figure>
+
+
 ### 05:13 从一个 Agent 到一百个 Agent
 
 所以，我认为归根结底还是信任。但到底怎样建立这种信任？无论你现在处于使用 Agent 的哪个阶段，又该从哪里开始？
@@ -76,11 +66,21 @@ lang: zh
 
 如果没有这种信任，就直接启动一百个子 Agent 或云端 Agent，你很快会发现，得到的只是一大堆低质量的 PR、一堆回归问题，以及一堆被带到生产环境中的 bug。没有人会满意。因此，问题就变成了：怎样才能更信任你的 Agent？
 
+
+
+<figure style="margin: 1.6rem 0"><img src="/assets/articles/lauren-tan-agent-trust-michelin-kitchen/04-trust.webp" alt="信任与 Agent 并行数量的概念图：这是讲者的经验模型，不是经过测量的性能或扩展性曲线。" loading="lazy" width="1606" height="1290"><figcaption>05:35 · 信任与 Agent 并行数量的概念图：这是讲者的经验模型，不是经过测量的性能或扩展性曲线。</figcaption></figure>
+
+
 ### 06:50 验证有不同层次
 
 对我而言，这件事真正开始于前面提到的那段经历：我加入 Cursor 团队，开始处理性能问题，然后意识到了验证的必要性。我所说的验证，其实有不同层次。较基础的一端，就是我提到的验证技能：教 Agent 如何运行应用，如何使用 Chrome DevTools Protocol（Chrome 开发者工具协议），或者你使用的其他调试协议；教它调试应用、采集性能追踪记录、抓取堆快照，等等。
 
 而在另一端，是困难得多、也仍然有很多开放问题的形式化验证。你可能会借助形式化方法，或者 Lean、TLA+ 这样的语言来做验证，检查业务层面或业务逻辑中的不变量是否始终成立，并用形式化方式验证应用始终处于正确状态。不过我想说，即使你没有能力使用形式化方法，实际上真正有这种能力的人也很少，仅靠验证技能，你也已经能走得很远。
+
+
+
+<figure style="margin: 1.6rem 0"><img src="/assets/articles/lauren-tan-agent-trust-michelin-kitchen/05-three-levers.webp" alt="三个投入方向：验证正确性；用高质量技能建立工程工作方式；重构或重写架构，使代码库适合 Agent。" loading="lazy" width="1800" height="696"><figcaption>07:35 · 三个投入方向：验证正确性；用高质量技能建立工程工作方式；重构或重写架构，使代码库适合 Agent。</figcaption></figure>
+
 
 ### 08:37 Control Glass：可复用的 CLI
 
@@ -90,15 +90,22 @@ lang: zh
 
 与其让 Agent 每次都重新写脚本，而且每个会话写出来的脚本还可能不一样，不如直接在技能目录里放一个 CLI，让 Agent 每次都使用它。当然，你得真正投入精力，把这个 CLI 做好，让它能够应对各种不同的使用场景，并正确地运行应用。
 
+<a id="verification"></a>
+
 ### 10:16 功能地图：不仅能操作，还要知道产品是什么
 
 另一个非常重要的概念，是功能地图，也就是 Feature Map。这个说法大概算是我自己提出的。当时，我们开始在 Cursor 内部使用这些控制类技能，很快就遇到这样的问题：Slack 里有人发来一个问题报告，只有一张很含糊的截图，可能只是 UI 的一小块，再配上三个问号。使用控制技能的 Agent 完全摸不着头脑。它能把应用运行起来，却只能猜用户到底在说什么。
 
-于是我想到，能不能建立一个「功能地图」？这个想法有点受网站地图的启发。它本质上是一种物化记忆：你的应用究竟怎样工作？有哪些功能？用户如何到达这些功能，比如使用什么快捷键、点击哪些 DOM 元素？各个功能分别做什么？
+于是我想到，能不能建立一个「功能地图」？这个想法有点受网站地图的启发。它本质上是把产品知识固化成可读取的记忆载体：你的应用究竟怎样工作？有哪些功能？用户如何到达这些功能，比如使用什么快捷键、点击哪些 DOM 元素？各个功能分别做什么？
 
 这份功能地图就存放在代码库中的技能里，是技能目录的一部分。我们还有自动化任务来维护它。把 CLI 和功能地图结合起来之后，我们很快发现，这个组合非常强大。因为 Agent 不仅可以重复、稳定地控制应用和采集追踪记录，还能理解内部用户和外部用户提出的请求。
 
 我们很快意识到，这些用于控制和验证的技能实在太有用了，已经几乎成了团队不可或缺的基础设施，需要持续维护。Agent 能验证自己的工作，这种能力非常强大。我们在这个技能上投入了大量时间，而它对建立信任确实非常有效。
+
+
+
+<figure style="margin: 1.6rem 0"><img src="/assets/articles/lauren-tan-agent-trust-michelin-kitchen/06-verification.webp" alt="Feature Map 提供产品上下文，CLI 提供可重复的控制能力；二者结合，Agent 才能验证自己的工作。" loading="lazy" width="1800" height="1016"><figcaption>10:05 · Feature Map 提供产品上下文，CLI 提供可重复的控制能力；二者结合，Agent 才能验证自己的工作。</figcaption></figure>
+
 
 ### 12:33 正确性、质量与 pstack
 
@@ -108,6 +115,8 @@ lang: zh
 
 这也是团队里更有经验的工程师能够做出重要贡献的地方：建立一个团队共享的技能仓库，让 Agent 更聪明。把这些技能与验证技能结合起来后，Agent 就不仅能验证自己的工作是否正确，还能验证它是否具有较高质量。而且，由于有验证机制，你可以采集真实的性能指标，拿到关于应用性能的实际数字、统计数据和遥测数据。因此，我认为这是非常值得投入的一个方面。
 
+<a id="correction"></a>
+
 ### 14:53 代码库本身就是记忆
 
 另一个我认为非常重要的方向，是重构乃至重写架构，让它对 Agent 更友好。我甚至想说，这是软件工程团队最值得做的事情之一。如果你真的相信，未来所有代码都会由 Agent 来写，那么我们就应该设计好代码库，让 Agent 默认就能做对事情。
@@ -115,6 +124,11 @@ lang: zh
 你会发现，在构建 Agent 信任的这些不同手段之间，似乎存在一个层次，或者说一条连续谱。我这里列了五项。其中，代码库本身实际上是最好的记忆形式，因为 Agent 非常喜欢沿用它看到的现有模式。我想，这就是大语言模型的工作性质决定的：它更倾向于利用上下文窗口里已有的东西来进行修改。
 
 当然，Agent 读取和打开的文件，也是上下文窗口的一部分。因此，代码库在这里非常重要。Agent 不会每写一个 PR，就把你的代码重构一遍。它通常只会看看已经有什么，然后沿着已有模式继续扩展。
+
+
+
+<figure style="margin: 1.6rem 0"><img src="/assets/articles/lauren-tan-agent-trust-michelin-kitchen/07-correction-order.webp" alt="纠正 Agent 的优先顺序：代码库 → 静态分析 → rules / Bugbot → skills → 风格指南。越能在结构上避免错误，就越少依赖临场提醒。" loading="lazy" width="1800" height="750"><figcaption>16:05 · 纠正 Agent 的优先顺序：代码库 → 静态分析 → rules / Bugbot → skills → 风格指南。越能在结构上避免错误，就越少依赖临场提醒。</figcaption></figure>
+
 
 ### 16:27 静态分析、规则、技能与风格指南
 
@@ -130,9 +144,14 @@ lang: zh
 
 说到代码库，我们在 Grok Bot 的代码库里投入建设了一套名为 Dune 的框架，它是为 Agent 友好使用而设计的。Dune 的灵感，很大程度上来自我们在 Cursor Agent 窗口里遇到的大量性能问题。那次探索让我们学到了很多东西，但最终确定的关键原则是：Agent 非常喜欢走捷径。
 
-那么，能不能设计这样一套框架，让捷径，也就是最容易走的路，恰好就是 Agent 应该走的正确道路？它甚至可能是一个让人类工程师觉得很烦的代码库，因为能做什么、不能做什么，都被限制得很死。但对于 Agent，尤其是上下文信息非常少的 Agent，这反而构成了理想环境。
+那么，能不能设计这样一套框架，让捷径，也就是最容易走的路，恰好就是 Agent 应该走的正确道路？它甚至可能是一个让人类工程师觉得很烦的代码库，因为能做什么、不能做什么，都有明确且严格的约束。但对于 Agent，尤其是上下文信息非常少的 Agent，这反而构成了理想环境。
 
 因为今后参与代码库开发的人，不会全是工程师了。设计师、产品经理、CEO 都可能进入代码库并交付功能。所以，我们需要认真思考，该怎样投入和组织代码库，让那些由忙碌、又没有太多上下文的人操作的 Agent，也能默认把事情做好。
+
+
+
+<figure style="margin: 1.6rem 0"><img src="/assets/articles/lauren-tan-agent-trust-michelin-kitchen/08-pattern-copying.webp" alt="上下文有限的 Agent 看见一个现成绕行方案，便可能把它复制到更多地方。代码库既能传播好模式，也能传播坏模式。" loading="lazy" width="1800" height="870"><figcaption>19:35 · 上下文有限的 Agent 看见一个现成绕行方案，便可能把它复制到更多地方。代码库既能传播好模式，也能传播坏模式。</figcaption></figure>
+
 
 ### 20:31 反模式会扩散
 
@@ -141,6 +160,11 @@ lang: zh
 也许只是一个小小的临时绕行方案，或者一条解释这个方案的注释，你很快就会发现，Agent 特别喜欢照着复制。几天或几周之后，这种绕行方案就扩散得到处都是，成了所有 Agent 实际遵循的默认模式。这是非常糟糕的状态。因此，我才一直强调，每当你纠正 Agent 时，都应该花时间考虑代码库层面的修改和静态分析，再叠加好的规则、Bugbot 和技能。
 
 除了米其林厨房，我还喜欢另一个比喻：代码库就像一座花园。有些临时绕行方案最初看起来无伤大雅，但由于 Agent 的特性，这种模式会被一遍遍复制。很快，你就会得到一个充满 vibe coding 痕迹的代码库，维护起来非常痛苦，而且还有大量性能问题。
+
+
+
+<figure style="margin: 1.6rem 0"><img src="/assets/articles/lauren-tan-agent-trust-michelin-kitchen/09-garden.webp" alt="从一个 workaround 到默认模式：每一次复制，都会让下一次复制更容易发生。" loading="lazy" width="1800" height="680"><figcaption>22:35 · 从一个 workaround 到默认模式：每一次复制，都会让下一次复制更容易发生。</figcaption></figure>
+
 
 ### 22:32 为什么 Dune 禁止代码注释
 
@@ -162,17 +186,69 @@ Dune 背后的很多原则，都围绕这三件事展开。第一，清除已经
 
 所以，我非常建议认真思考，怎样防住这些反模式，避免它们像病毒一样传播。同时，也要花时间让 Agent 真正把它们清理掉，使代码库始终保持在一种状态：如果 Agent 要照着复制，你会对此感到满意。这就是我建议采用的心态。
 
+
+
+<figure style="margin: 1.6rem 0"><img src="/assets/articles/lauren-tan-agent-trust-michelin-kitchen/10-gardeners.webp" alt="园丁的三件事：删除技术债；保留一条标准路径；用 lint 阻止反模式继续扩散。" loading="lazy" width="1800" height="747"><figcaption>25:05 · 园丁的三件事：删除技术债；保留一条标准路径；用 lint 阻止反模式继续扩散。</figcaption></figure>
+
+
+<a id="dune"></a>
+
 ### 26:41 Dune 的架构与进程边界
 
 接下来，我不会逐一讲解 Dune 的全部细节，只简单介绍几个有意思的部分。再提醒一下，Dune 是我们用来支撑 Grok Bot 的架构，也是一套客户端框架。我们对刚才说的那些方面投入了很多，建立了许多约定：代码应该放在哪里，模块之间应该从哪里、以什么方式导入代码。
 
-比如，Dune 应用中有不同的概念。一个功能的相关代码都集中在同一个文件夹里；React 部分有入口，你可以把它理解成类似路由的东西；有显示在 Grok Bot 应用里的对话记录卡片（transcript cards）；有运行在 Grok Bot 虚拟机上的 host；当然，还有驱动整个 Dune 应用的客户端。
 
-这些部分之间存在很多严格的边界。举个例子，在 Electron 主进程或主线程上运行的东西，不允许跑到渲染线程上。我们非常有意地维持这种隔离，因为我们在 Cursor 的 Agent 窗口里吃过亏：有时会有代码被意外导入渲染线程，而且还是运行很慢的代码。
 
-既然你希望渲染线程上的 UI 足够流畅、性能足够好，就必须确保那里没有长时间占用线程的任务。例如，想达到每秒 60 帧，就不能让任务耗时超过约 16 毫秒；想达到每秒 120 帧，则是约 8 毫秒。因此，渲染器必须能够把工作拆成小块，而不是一次性全部执行。Dune 内部有代码通过导入关系和依赖图来强制执行这些边界。
+<figure style="margin: 1.6rem 0"><img src="/assets/articles/lauren-tan-agent-trust-michelin-kitchen/11-dune-context.webp" alt="Dune 的目标：只掌握局部上下文、只改动一个小区域，也能保持整个 Electron 应用的正确性。" loading="lazy" width="1800" height="1013"><figcaption>26:46 · Dune 的目标：只掌握局部上下文、只改动一个小区域，也能保持整个 Electron 应用的正确性。</figcaption></figure>
+
+
+比如，Dune 应用中有不同的概念。一个 Feature（功能）的相关代码集中在同一个文件夹里；React 部分有 Entrypoint（入口视图），你可以把它理解成类似路由的东西；有显示在 Grok Bot 应用里的 Transcript card（会话记录条目卡片）；有运行在 Grok Bot 虚拟机上的 Host；当然，还有驱动 Dune 应用的 Client 模块。
+
+
+
+<figure style="margin: 1.6rem 0"><img src="/assets/articles/lauren-tan-agent-trust-michelin-kitchen/12-five-nouns.webp" alt="组织应用的五个核心概念：Feature、Entrypoint、Transcript card、Client、Host。" loading="lazy" width="1800" height="1019"><figcaption>27:05 · 组织应用的五个核心概念：Feature、Entrypoint、Transcript card、Client、Host。</figcaption></figure>
+
+> **画面补读**：Feature 是拥有产品 UI 的功能目录；Entrypoint 是用户可打开的视图；Transcript card 是某一种会话记录条目的、由 Feature 负责的内容区域。这里的 **Client 不是泛指客户端应用**，而是通过 hooks 和命令提供渲染进程状态的模块；Host 则通过有类型约束的契约提供持续运行的行为。每个概念都有明确的目录位置和运行时职责。
+
+这些部分之间存在很多严格的边界。举个例子，应当在 Electron 主进程运行的代码，不允许被放到渲染进程中执行。我们非常有意地维持这种隔离，因为我们在 Cursor 的 Agent 窗口里吃过亏：有时会有代码被意外导入渲染线程，而且还是运行很慢的代码。
+
+既然你希望渲染线程上的 UI 足够流畅、性能足够好，就必须确保那里没有长时间占用线程的任务。例如，想达到每秒 60 帧，就不能让任务耗时超过约 16 毫秒；想达到每秒 120 帧，则是约 8 毫秒。因此，渲染器必须能够把工作拆成小块，而不是一次性全部执行。Dune 内部通过导入关系和依赖图来强制执行这些边界。
 
 这只是一个例子：我们曾经看到某种模式导致严重性能问题，于是通过 Dune 的架构，从结构上消除了这种模式。
+
+
+
+<figure style="margin: 1.6rem 0"><img src="/assets/articles/lauren-tan-agent-trust-michelin-kitchen/13-process-boundaries.webp" alt="目录揭示运行位置和合法依赖：renderer 中是 Feature UI、Navigation 与 Client；另一侧是 Host 扩展和 Electron main。" loading="lazy" width="1800" height="1046"><figcaption>29:02 · 目录揭示运行位置和合法依赖：renderer 中是 Feature UI、Navigation 与 Client；另一侧是 Host 扩展和 Electron main。</figcaption></figure>
+
+> **画面补读**：边界不是禁止跨进程通信，而是要求跨越有类型约束的接口。`shared/` 保存跨进程类型；每个进程只能导入允许的层。Navigation 负责链接，Client 负责本地副本与命令，Host 扩展负责持久的领域行为，Electron main 负责窗口和操作系统能力。不能把「主进程」和「主线程」、或「渲染进程」和它的 UI 线程简单当作同义词。
+
+#### 快速翻过的四张图：局部修改如何保持整体正确
+
+**以下是画面补读，不是补造的口述。** 讲者在约 29:16–29:21 快速翻页，没有逐项朗读，但这四张图包含 Dune 如何工作的重要约束。
+
+
+<figure style="margin: 1.6rem 0"><img src="/assets/articles/lauren-tan-agent-trust-michelin-kitchen/14-send-path.webp" alt="一次发送的唯一责任链：React view → Client → source adapter → Host → events → Snapshot Client。" loading="lazy" width="1800" height="989"><figcaption>29:16.85 · 一次发送的唯一责任链：React view → Client → source adapter → Host → events → Snapshot Client。</figcaption></figure>
+
+
+**一次发送，谁负责什么？** 视图调用具名的 Client 命令；Client 记录本地意图和请求键；source adapter 把领域数据映射到有类型约束的接口；Host 接受请求并执行工作；事件携带明确的顺序标记返回；Snapshot Client 对齐状态并发布更新，hooks 再触发视图渲染。**Host 是权威状态源，Client 拥有本地副本和乐观更新层**。图中还强调：一个持久状态值只允许一个写入方；过期尝试通过 key 被识别并淘汰；重连应该使状态收敛，而不是重复执行。
+
+
+<figure style="margin: 1.6rem 0"><img src="/assets/articles/lauren-tan-agent-trust-michelin-kitchen/15-feature-discovery.webp" alt="增加一个 Feature，只增加它自己的文件，不再修改共享注册表。" loading="lazy" width="1800" height="998"><figcaption>29:17.50 · 增加一个 Feature，只增加它自己的文件，不再修改共享注册表。</figcaption></figure>
+
+
+**靠文件约定发现功能，而不是争抢注册表。** 以 `features/reports/workspace/` 为例：`entrypoint.ts` 提供预先加载的标识与策略；`view.tsx` 是按需加载的 React 视图；`loading.tsx` 和 `error.tsx` 是可选的预加载回退界面；`features/reports/index.ts` 是公开的跨 Feature 接口。Vite 在构建时收集约定文件，`createDuneApp` 在启动时验证并冻结统一目录，首次打开时才加载视图。两个 Agent 可以分别添加不同 Feature 目录，而不用同时改同一个根注册文件。
+
+
+<figure style="margin: 1.6rem 0"><img src="/assets/articles/lauren-tan-agent-trust-michelin-kitchen/16-guardrails.webp" alt="在编辑、构建、渲染进程启动、lint 和测试各阶段尽早拒绝错误；诊断信息应指出正确的负责人或 API。" loading="lazy" width="1800" height="940"><figcaption>29:18.60 · 在编辑、构建、渲染进程启动、lint 和测试各阶段尽早拒绝错误；诊断信息应指出正确的负责人或 API。</figcaption></figure>
+
+
+**护栏不是一句“请遵守规范”。** 编辑阶段检查导出、目标项目和类型契约；构建阶段执行约定文件发现、Host peer graph 与 React Compiler；渲染进程启动时检查重复 ID、缺失视图和非法卡片路径；lint 检查错误导入、原始 RPC 调用、定时器、effects 和文件膨胀；测试验证公开契约，而且测试必须确实能够失败。图中给出的顺序是：**类型优先，其次构建检查，再是脚手架，最后才是文字说明**。错误诊断还要告诉 Agent 应该使用哪个 API、由哪个模块负责。
+
+
+<figure style="margin: 1.6rem 0"><img src="/assets/articles/lauren-tan-agent-trust-michelin-kitchen/17-single-ownership.webp" alt="单一归属防止并行开发偏离：状态只有一个写入方，不同 Feature 不共享手工注册入口。" loading="lazy" width="1800" height="972"><figcaption>29:20.80 · 单一归属防止并行开发偏离：状态只有一个写入方，不同 Feature 不共享手工注册入口。</figcaption></figure>
+
+
+**“单一归属”不是只允许一个 Agent 工作。** 左图要求 selected agent 等状态由 Client 唯一写入，Feature 读取，Navigation 只负责链接，避免其他层维护竞争性的状态流。右图中，Agent A 添加 reports，Agent B 添加 settings，构建时再自动汇总到 catalog。它约束的是状态写入权和模块边界，目的是让更多 Agent 能独立并行。
 
 ### 29:17 把团队经验编码进框架
 
@@ -181,6 +257,12 @@ Dune 背后的很多原则，都围绕这三件事展开。第一，清除已经
 我认为真正值得思考的是，怎样把原本留在风格指南和人工代码审查中的知识提取出来。过去，工程师会审查其他工程师的工作、留下评论；现在，能否把这些知识编码到框架里、代码库本身里，让代码库成为记忆？
 
 我一直回到这个想法：代码库就是你希望 Agent 延续下去的那个状态的一份物化快照。你希望它足够干净、足够好，这样下一个 Agent 进来时，就很有可能沿用这些模式，让代码库继续保持很好的状态。
+
+
+
+<figure style="margin: 1.6rem 0"><img src="/assets/articles/lauren-tan-agent-trust-michelin-kitchen/18-feature-blueprint.webp" alt="Host-backed feature 的纵向切片：Feature UI、Client、Shared edge、Host extension 各守其责。" loading="lazy" width="1800" height="1030"><figcaption>29:35 · Host-backed feature 的纵向切片：Feature UI、Client、Shared edge、Host extension 各守其责。</figcaption></figure>
+
+> **画面补读**：React 组件只读取 hooks；Client 管理本地副本；共享接口定义有类型约束的参数和失败；Host 扩展负责持久行为。组件不应直接处理 IPC 通道、Host peer 查找、重试顺序或进程启动。Agent 友好的关键，不是让 Agent 读完所有代码，而是让一次正确的局部修改仍然满足整个应用的不变量。
 
 ### 30:37 信任工作环境，而不是依赖全程盯梢
 
@@ -192,15 +274,40 @@ Dune 背后的很多原则，都围绕这三件事展开。第一，清除已经
 
 比如，在厨房里，如果我们发现某位厨师或洗碗工总是被同一个东西绊倒，当然就要把问题解决掉，确保其他人也不会绊倒。毕竟厨房是个有危险的地方，你不想让自己受伤。我认为，对代码库也应该抱有同样的心态：怎样布置这个环境，才能让没有太多知识的 Agent 也把事情做好？
 
+<a id="outer-loop"></a>
+
 ### 32:33 Grok Bot、Cursor 与外环
 
 我认为，Grok Bot 和 Cursor 搭配起来，分别承担了很有意思的角色。Grok Bot 很擅长提供我所说的「外环」。因为你可以把它连接到很多不同的服务，比如 Slack、Datadog、Sentry、PlanetScale，或者你使用的其他服务。它可以汇总这些信息，再据此作出很好的决定。
+
+
+
+<figure style="margin: 1.6rem 0"><img src="/assets/articles/lauren-tan-agent-trust-michelin-kitchen/19-outer-loop.webp" alt="外环接收服务事件，云端 Agent 执行工作；自动化与 Agent SDK 将个人工作流程扩展为团队流程。" loading="lazy" width="1800" height="1041"><figcaption>32:35 · 外环接收服务事件，云端 Agent 执行工作；自动化与 Agent SDK 将个人工作流程扩展为团队流程。</figcaption></figure>
+
 
 有些人把这叫作「公司大脑」。我个人不认为这里需要那么复杂的东西，因为 Agent 本来就很擅长使用工具。所以，只要把这些工具连接到 Grok Bot，再让 Grok Bot 自动启动云端 Agent 等工作，你就会发现，建设一座软件工厂其实不需要投入那么多基础设施。事实上，我要把「软件工厂」这个词划掉，因为我不喜欢这个说法。
 
 我认为，你可以通过 Grok Bot 为自己搭建一座个人的米其林厨房。比如，Grok Bot 的 routines，也就是例行自动化任务，可以订阅 Slack 讨论串和 Sentry 告警，然后自动启动工作。再把我一直提到的这些东西结合起来，包括代码库、规则和技能，它们的效果就会不断叠加。Grok Bot 能自动响应外环传来的事件，然后启动云端 Agent。
 
 你还可以配置 Cursor Automations，并使用我们的 SDK 创建额外的机器人，复用已经搭建好的 Agent 基础设施，让它们完成复杂得多的任务。做到这些之后，就能达到这样的状态。我这里展示了一些截图，是我们在 Cursor 上工作的自动化任务和 Agent：它们会自动复现 bug 报告、自动创建 PR。由于这些投入的效果不断叠加，我们实际上是在为整个团队创造大量价值。
+
+#### 演示画面里的两次复现
+
+**以下是截图内容补读，属于讲者展示的内部记录，不是本文作者独立复现的结果。**
+
+
+<figure style="margin: 1.6rem 0"><img src="/assets/articles/lauren-tan-agent-trust-michelin-kitchen/20-slack-fix.webp" alt="Benny 的结论是“能复现，但 main 上已经修好”，不是再创建一个重复修复 PR。" loading="lazy" width="1688" height="1462"><figcaption>34:48 · Benny 的结论是“能复现，但 main 上已经修好”，不是再创建一个重复修复 PR。</figcaption></figure>
+
+
+第一例涉及切换会话焦点后，原本已关闭的 Apps 侧栏又被打开。Agent 比较了旧提交和修复后的版本：旧版本能复现，修复后保持关闭。值得注意的是，验证的结果也可能是**确认已有修复有效，无须重复改代码**。
+
+
+<figure style="margin: 1.6rem 0"><img src="/assets/articles/lauren-tan-agent-trust-michelin-kitchen/21-slack-reproduction.webp" alt="另一个例子：一个终端打印 URL，另一个终端启动服务，应用却自动打开了 Cursor Browser。" loading="lazy" width="1692" height="1462"><figcaption>35:05 · 另一个例子：一个终端打印 URL，另一个终端启动服务，应用却自动打开了 Cursor Browser。</figcaption></figure>
+
+
+第二例不是笼统的“浏览器打不开”，而是**跨终端信息被错误关联**。截图中，Agent 在 Glass 里复现三次：一个终端只打印 URL，另一个终端启动服务器且只打印 ready，应用仍自动弹出 Browser 页签与提示。报告指出，终端观察器把某条命令输出的 URL 与整台机器前后的端口快照拼在一起，却没有确认监听端口是否属于同一命令或终端。现有测试覆盖已存在端口和同一命令中新开端口，却漏了跨终端场景。后续要求是重新跑复现路径，先写出失败测试，再修复。
+
+这两张图让“信任”变得具体：给出复现步骤、版本对照、失败条件和测试缺口，而不只是宣称 Agent 自动交付了多少 PR。
 
 ### 35:15 最后，希望你记住这件事
 
@@ -216,14 +323,50 @@ Dune 背后的很多原则，都围绕这三件事展开。第一，清除已经
 
 ---
 
-## 补充校注与转录边界
+## 译者总结：真正需要扩展的不是 Agent 数量
+
+**以下是我的总结与判断，不是讲者原话。**
+
+这场演讲的主线不是「如何一次开一百个 Agent」，而是：**先把工程经验变成可执行、可检查、可复用的环境，再增加并行度。** 人不再逐条盯着输出，但仍然对产品结果和工作环境负责。
+
+1. **验证要同时具备操作能力和产品知识。** CLI 让 Agent 可重复地运行真实应用、采集证据；功能地图让它知道产品有什么、用户如何到达对应功能。只会点击和运行命令，还不足以理解一张含糊的报错截图。
+2. **代码库本身是一种记忆。** Agent 会沿用眼前的模式，因此一次临时绕行可能成为后续大量提交的模板。修正 Agent 时，优先考虑架构、数据结构和静态检查，再补规则与技能，而不是只多写一段提示词。
+3. **把资深工程师的经验沉淀到系统里。** 调试、性能分析、开发流程可以成为团队共享的技能；模块边界、依赖方向和禁止模式则尽可能由工具强制执行。
+4. **自动化的外环负责接收信号、启动工作。** Slack、错误告警等触发任务，云端 Agent 执行，验证机制收集实际证据。扩大吞吐的前提是这些环节能可靠协作，而非一套庞大而神秘的「公司大脑」。
+
+我认为最值得带走的一问是：**这次纠正，能否变成下次不再需要人工纠正的机制？** 但也要保留边界：PR 数量不等于业务价值；运行验证不等于形式化证明；讲者团队对 Dune 的「禁止注释」是特定治理选择，不应直接推广成所有项目的通则。比照搬禁令更重要的是识别注释是否在为本可消除的问题找借口，以及是否把好坏模式都固化进了环境。
+
+<details>
+<summary>术语、校注与转录边界</summary>
+
+## 术语说明
+
+| 原词 | 本文用法 |
+| --- | --- |
+| Agent / skills | 保留 Agent；skills 译为「技能」，指供 Agent 使用的流程与操作知识，不是模型训练能力的泛称。 |
+| pull request / PR | 合并请求（PR）；不与 Git commit「提交」混为一谈。 |
+| verification / formal verification | 验证 / 形式化验证；前者可指运行应用并取证，后者涉及形式化方法与不变量证明。 |
+| performance trace / heap snapshot | 性能追踪记录 / 堆快照；不是「热快照」。 |
+| Feature Map / materialized memory | 功能地图 / 物化记忆，即保存下来的、可供读取的具体记忆载体；这里不是神经网络中的特征图。 |
+| pstack / Control Glass / Dune / Bugbot | 保留名称。pstack 是讲者的技能插件；Control Glass 是视频所述的内部验证技能；Dune 是视频所述的客户端框架，不与同名其他项目混淆；Bugbot 是代码审查产品名。 |
+| paved path / workaround | 标准路径 / 临时绕行方案；分别指团队认可的常规实现方式和绕过问题的权宜实现。 |
+| outer loop / routines | 外环 / 例行自动化任务；用于描述接收外部信号并触发后续工作的流程。 |
+
+产品及公司名称按视频语境保留为 Cursor、Grok Bot、SpaceXAI；人名保留 Lauren Tan。`pstack` 的拼写与作者身份另核对了 [Cursor 插件页](https://cursor.com/marketplace/cursor/pstack)及[官方仓库](https://github.com/cursor/plugins/tree/main/pstack)。内部系统的能力描述以本视频为依据，不视为已经独立验证的公开产品规格。
+
+### 校注与边界
 
 - **五个层次**：视频幻灯片依次列出代码库、静态分析（lint / compiler / CI）、rules / Bugbot、skills、style guide。口述有时把规则与技能并列讲解，译文没有凭空增加第六层。
 - **帧预算**：讲者使用约 16 毫秒和约 8 毫秒说明 60 FPS 与 120 FPS 的帧预算。这里保留其近似表达，不把这段口语解释成 Web 性能 API 中「Long Task」的正式定义。
 - **内部实践与观点**：Control Glass、Dune、公司关系、交付数量和工程效果按讲者当时的陈述翻译；本文没有把它们当作独立调查结论，也没有声称复现过其内部工作流。
 - **识别质量**：第一轮在约 09:17–10:17、11:17–12:17 出现重复幻觉，第二轮关闭前文条件化后恢复相应内容；关键数字、否定词及部分术语结合视频字幕和画面交叉核对。英文清洗稿保留完整论述，但不是保留每个语气词的法庭式速记。SRT 保留机器识别的分段与时间轴，未逐帧人工对齐，也不等同于清洗定稿。
 
-## 英文清洗逐字稿
+- **画面修订**：本版重新抽取 21 张关键帧，包含完整的 8 张 Dune 架构图。插图为原视频裁切，非重绘；图中文字的补译均标明“画面补读”，与口述译稿分开。英文稿仍是口述清洗稿，不把未说出口的幻灯片文字写成讲者原话。
+
+</details>
+
+<details>
+<summary>完整英文清洗逐字稿（19 个章节）</summary>
 
 完整英文稿如下，可用于对照；小标题与时间戳为编辑辅助。
 
@@ -400,3 +543,6 @@ And of course, I definitely recommend thinking about it in this order, where you
 If you do all of that, and you also spend some time thinking about your code quality in terms of skills, you get to a place where you trust the environment so much that your agents can just be free. And personally, I have spent a lot of time on this for Grok Bot's codebase, for example, and this is really the secret. Well, it's not really a secret. It's a lot of hard work.
 
 But I hope you found this talk useful, and please reach out to me on X. My handle is poteto, with an E. And I hope that you'll have a lot of fun and success in your own Michelin kitchen. Thanks for watching!
+
+
+</details>
